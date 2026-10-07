@@ -1,0 +1,762 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Indovina Chi?</title>
+<meta name="description" content="Indovina Chi? online per 2 o 3 giocatori, in stile YouTuber. Crea una stanza e gioca con gli amici direttamente dal browser.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --bg:#0f1115; --bg2:#161920; --panel:#1b1f29; --panel2:#262b38; --line:#000;
+  --text:#f4f1e6; --muted:#9aa0b2; --gold:#ffd700; --goldd:#b39700; --ink:#1a1500;
+  --accent:#ffd700; --accent2:#4de1d2; --ok:#7be495; --bad:#ff4d6d;
+}
+*{box-sizing:border-box}
+html,body{margin:0}
+body{background:linear-gradient(160deg,var(--bg),var(--bg2));background-attachment:fixed;color:var(--text);font-family:'Fredoka','Comic Sans MS',cursive,sans-serif;line-height:1.4;min-height:100vh}
+button,input,select{font:inherit;color:inherit}
+button{background:var(--gold);color:var(--ink);border:3px solid var(--line);border-radius:12px;padding:8px 16px;font-weight:700;cursor:pointer;box-shadow:0 4px 0 var(--goldd);transition:transform .08s,box-shadow .08s}
+button:active:not(:disabled){transform:translateY(3px);box-shadow:0 1px 0 var(--goldd)}
+button.alt{background:var(--panel2);color:var(--text);box-shadow:0 4px 0 #000}
+button:disabled{opacity:.4;cursor:not-allowed}
+button:focus-visible,input:focus-visible,select:focus-visible,.card:focus-visible,#roomCode:focus-visible{outline:3px solid var(--accent2);outline-offset:2px}
+input,select{background:#0b0d11;border:3px solid var(--line);border-radius:12px;padding:10px 12px;width:100%;color:var(--text)}
+input::placeholder{color:var(--muted)}
+.hidden{display:none !important}
+
+/* Header adattivo */
+header{display:flex;align-items:center;justify-content:center;gap:16px;padding:28px 16px 8px}
+header img{height:90px;width:auto;transition:height .3s}
+header h1{margin:0;font-size:clamp(2.4rem,7vw,4.2rem);line-height:1;white-space:pre-wrap;letter-spacing:.02em;transition:font-size .3s;
+  text-shadow:-2px -2px 0 #000,2px -2px 0 #000,-2px 2px 0 #000,2px 2px 0 #000,0 6px 0 #000}
+body.in-game header{position:fixed;top:0;left:0;z-index:5;justify-content:flex-start;gap:8px;padding:8px 14px;background:rgba(15,17,21,.92);border-bottom-right-radius:14px}
+body.in-game header img{height:28px}
+body.in-game header h1{font-size:1.2rem;text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000,0 2px 0 #000}
+
+/* Setup */
+#setup{max-width:480px;margin:0 auto;padding:24px 16px 16px;display:flex;flex-direction:column;gap:14px}
+#setup .big{width:100%;font-size:1.6rem;padding:14px}
+#setup .join{display:flex;gap:10px}
+#setup .join button{white-space:nowrap}
+#setupMsg{color:var(--bad);min-height:1.4em;text-align:center}
+footer{margin-top:40px;text-align:center;font-size:.65rem;opacity:.5}
+footer p{margin:2px 0}
+footer a{color:inherit}
+
+/* Setup centrato con footer in fondo */
+body:not(.in-game){display:flex;flex-direction:column;min-height:100vh;gap:14px}
+body:not(.in-game) main,body:not(.in-game) #setup{display:contents}
+body:not(.in-game) header{margin-top:auto;align-self:center}
+body:not(.in-game) #setup > :not(footer){width:min(480px,calc(100% - 32px));align-self:center}
+body:not(.in-game) #setupMsg{margin-bottom:auto}
+body:not(.in-game) footer{margin-top:0;padding:24px 16px 12px;align-self:stretch}
+
+/* Gioco */
+#game{display:grid;grid-template-columns:minmax(0,1fr) clamp(220px,19%,340px);grid-template-rows:minmax(0,1fr);gap:16px;padding:56px 16px 16px;height:100vh;height:100dvh}
+.play{min-width:0;min-height:0;height:100%;display:flex;flex-direction:column}
+.top{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start;margin-bottom:12px}
+#secretBox{width:150px;background:var(--panel);border:3px solid var(--accent2);border-radius:14px;padding:10px;text-align:center}
+#secretBox small{display:block;color:var(--muted);font-size:.8rem;margin-bottom:6px}
+#secretBox .face{height:96px}
+#secretName{font-weight:700;margin-top:6px;font-size:.9rem;min-height:1.3em}
+#secretBox.masked #secretFace{-webkit-filter:blur(12px) brightness(.2);filter:blur(12px) brightness(.2)}
+#secretBox.masked #secretName{letter-spacing:.2em}
+.info{display:flex;flex-direction:column;gap:10px}
+#roster{display:flex;gap:8px;flex-wrap:wrap}
+.chip{background:var(--panel);border:2px solid var(--line);border-radius:999px;padding:2px 12px;font-size:.9rem}
+.chip.ready{border-color:var(--ok)}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
+.actions select{width:auto}
+.hint{color:var(--muted);font-size:.9rem;margin:0 0 10px}
+
+.board{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px;flex:1;min-height:0;overflow-y:auto;align-content:start;padding:2px 4px 8px}
+.card{position:relative;background:var(--panel);border:3px solid var(--line);border-radius:12px;padding:8px;cursor:pointer;text-align:center;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;box-shadow:0 4px 0 #000;transition:opacity .15s,border-color .15s}
+.card .face{height:92px}
+.card .nm{font-size:.85rem;font-weight:600;margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.face{display:flex;align-items:center;justify-content:center;border-radius:8px;background:var(--panel2);overflow:hidden}
+.face img{width:100%;height:100%;object-fit:cover;display:block}
+.face .emo{font-size:2.8rem}
+.card.out{opacity:.35;border-color:var(--bad)}
+.card.out::after{content:"\2715";position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;font-size:3.4rem;color:var(--bad);font-weight:700}
+.card.pick{border-color:var(--accent2);box-shadow:0 0 0 3px rgba(77,225,210,.35)}
+.card.mine::before{content:"\2605";position:absolute;top:8px;right:12px;font-size: 1.4rem;line-height: 1;color:var(--accent);z-index:1;-webkit-text-stroke: 1.5px #000;filter: drop-shadow(0px 1px 1px rgba(0,0,0,0.8));}
+.board.guessing .card{cursor:crosshair;border-color:var(--gold)}
+
+/* Selezione categoria */
+.modal{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.78);z-index:50;padding:16px}
+.modal-box{background:var(--panel);border:3px solid var(--line);border-radius:16px;box-shadow:0 6px 0 #000;padding:28px;width:100%;max-width:880px;max-height:calc(100vh - 32px);overflow-y:auto;text-align:center}
+.modal-box h2{margin:0 0 20px;font-size:1.8rem;color:var(--gold);text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000,0 3px 0 #000}
+.cat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,250px));justify-content:center;gap:18px;margin-bottom:22px}
+.cat-box{background:var(--panel2);color:var(--text);border:3px solid var(--line);border-radius:14px;padding:18px 26px 22px;box-shadow:0 4px 0 #000;display:flex;flex-direction:column;align-items:center;gap:14px}
+.cat-box:hover,.cat-box:focus-visible{border-color:var(--gold);transform:translateY(-2px)}
+.cat-title{font-size:1.15rem;font-weight:700;color:var(--gold);line-height:1.2}
+.cat-prev{display:grid;grid-template-columns:1fr 1fr;gap:8px;width:100%;max-width:170px}
+.cat-prev .face,.cat-more{height:74px}
+.cat-prev .face .emo{font-size:1.8rem}
+.cat-more{display:flex;align-items:center;justify-content:center;border:2px dashed var(--gold);border-radius:8px;font-weight:700;font-size:1.1rem;color:var(--gold)}
+
+/* Codice stanza */
+.roombar{flex:none;padding-top:10px;align-self:center;display:flex;align-items:center;gap:8px;font-size:.85rem}
+#roomCode{font-weight:700;letter-spacing:.14em;background:var(--panel);border:2px dashed var(--gold);border-radius:8px;padding:2px 10px;cursor:pointer}
+#roomCode:hover{background:var(--panel2)}
+.roombar button{padding:3px 10px;font-size:.8rem;border-width:2px;box-shadow:0 3px 0 #000}
+
+/* Chat a destra */
+.logwrap{height:100%;display:flex;flex-direction:column;background:var(--panel);border:3px solid var(--line);border-radius:14px;padding:10px;min-width:0}
+.logwrap h2{margin:0 0 8px;font-size:1rem}
+#log{flex:1;min-height:0;overflow-y:auto;background:#0b0d11;border-radius:10px;padding:8px 10px;font-size:.85rem;word-wrap:break-word;overflow-wrap:anywhere}
+.line{padding:2px 0;color:var(--muted)}
+.line.chat{color:var(--text)}
+.line.win{color:var(--ok);font-weight:700}
+.line.err{color:var(--bad)}
+#chatForm{display:flex;flex-direction:column;gap:6px;margin-top:8px}
+
+@media (max-width:900px){
+  #game{grid-template-columns:1fr;grid-template-rows:auto;height:auto;min-height:100vh}
+  .play{height:auto}
+  .board{overflow:visible}
+  .logwrap{height:320px}
+  .roombar{position:sticky;bottom:0;background:var(--bg);width:100%;justify-content:center;padding:8px}
+}
+@media (max-width:560px){
+  .top{grid-template-columns:1fr}
+  #secretBox{width:100%}
+  #secretBox .face{height:80px}
+  .board{grid-template-columns:repeat(auto-fill,minmax(96px,1fr))}
+  header img{height:60px}
+}
+@media (prefers-reduced-motion:reduce){.card,header img,header h1,button{transition:none}}
+</style>
+</head>
+<body>
+
+<header>
+  <img src="logo.png" alt="Logo Indovina Chi?" onerror="this.style.display='none'">
+  <h1 id="title">Indovina Chi?</h1>
+</header>
+
+<main>
+  <section id="setup" aria-label="Impostazioni partita">
+    <input id="nameIn" maxlength="20" placeholder="Inserisci il tuo nome" autocomplete="off" aria-label="Il tuo nome">
+    <button id="createBtn" class="big" type="button">Crea stanza</button>
+    <div class="join">
+      <input id="codeIn" maxlength="5" placeholder="Inserisci il codice della stanza" autocomplete="off" autocapitalize="characters" aria-label="Codice stanza">
+      <button id="joinBtn" type="button">Entra</button>
+    </div>
+    <div id="setupMsg" role="alert"></div>
+    <footer>
+      <p><a href="crediti.html">Crediti</a></p>
+      <p>Il proprietario di questo sito non è responsabile per i contenuti generati dagli utenti (messaggi, nomi utente e personalizzazioni).</p>
+    </footer>
+  </section>
+
+  <section id="game" class="hidden" aria-label="Partita">
+    <div class="play">
+      <div class="top">
+        <div id="secretBox" aria-live="polite">
+          <small>La tua carta segreta (solo tu la vedi)</small>
+          <div id="secretFace" class="face"><span class="emo">?</span></div>
+          <div id="secretName">Nessuna scelta</div>
+        </div>
+        <div class="info">
+          <div id="roster"></div>
+          <div class="actions">
+            <button id="confirmBtn" type="button" disabled>Conferma carta segreta</button>
+            <button id="hideSecretBtn" class="alt" type="button">Nascondi carta segreta</button>
+            <button id="guessBtn" class="alt" type="button" disabled>Tenta di indovinare</button>
+            <select id="target" class="hidden" aria-label="Avversario da indovinare"></select>
+            <button id="resetBtn" class="alt" type="button">Ripristina tutto</button>
+          </div>
+        </div>
+      </div>
+      <p class="hint" id="hint">Clicca una carta per sceglierla come segreta, poi conferma.</p>
+      <div class="board" id="board"></div>
+      <div class="roombar">
+        <span>Stanza</span>
+        <span id="roomCode" role="button" tabindex="0" title="Clicca per copiare il codice">-----</span>
+        <button id="hideBtn" class="alt" type="button">Nascondi codice</button>
+      </div>
+    </div>
+
+    <aside class="logwrap" aria-label="Log e chat">
+      <h2>Log e chat</h2>
+      <div id="log" role="log" aria-live="polite"></div>
+      <form id="chatForm" autocomplete="off">
+        <input id="chatIn" maxlength="200" placeholder="Scrivi un messaggio...">
+        <button type="submit">Invia</button>
+      </form>
+    </aside>
+  </section>
+</main>
+
+<div id="catModal" class="modal hidden">
+  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="catTitle">
+    <h2 id="catTitle">Scegli la categoria</h2>
+    <div id="catGrid" class="cat-grid"></div>
+    <button id="catCancel" class="alt" type="button">Annulla</button>
+  </div>
+</div>
+
+<script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+<script>
+(function(){
+'use strict';
+
+var DEFAULTS = [
+  {name:'Pixelone',      img:'https://api.dicebear.com/9.x/fun-emoji/svg?seed=Pixelone',      emoji:'🎮'},
+  {name:'Capitan Meme',  img:'https://api.dicebear.com/9.x/fun-emoji/svg?seed=CapitanMeme',   emoji:'😎'},
+  {name:'Nonna Streamer',img:'https://api.dicebear.com/9.x/fun-emoji/svg?seed=NonnaStreamer', emoji:'👵'},
+  {name:'Dr. Glitch',    img:'https://api.dicebear.com/9.x/fun-emoji/svg?seed=DrGlitch',      emoji:'🧪'},
+  {name:'Sir Lag',       img:'https://api.dicebear.com/9.x/fun-emoji/svg?seed=SirLag',        emoji:'🐢'},
+  {name:'Mister Clip',   img:'https://api.dicebear.com/9.x/fun-emoji/svg?seed=MisterClip',    emoji:'🎬'},
+  {name:'Lady Loot',     img:'https://api.dicebear.com/9.x/fun-emoji/svg?seed=LadyLoot',      emoji:'💎'},
+  {name:'Turbo Noob',    img:'https://api.dicebear.com/9.x/fun-emoji/svg?seed=TurboNoob',     emoji:'🚀'},
+  {name:'Zio Ban',       img:'https://api.dicebear.com/9.x/fun-emoji/svg?seed=ZioBan',        emoji:'🔨'},
+  {name:'Chef Combo',    img:'https://api.dicebear.com/9.x/fun-emoji/svg?seed=ChefCombo',     emoji:'🍳'},
+  {name:'Ninja Ping',    img:'https://api.dicebear.com/9.x/fun-emoji/svg?seed=NinjaPing',     emoji:'🥷'},
+  {name:'Baby Boss',     img:'https://api.dicebear.com/9.x/fun-emoji/svg?seed=BabyBoss',      emoji:'👶'},
+  {name:'Re Speedrun',   img:'https://api.dicebear.com/9.x/fun-emoji/svg?seed=ReSpeedrun',    emoji:'⏱️'},
+  {name:'Strega Mod',    img:'https://api.dicebear.com/9.x/fun-emoji/svg?seed=StregaMod',     emoji:'🧙'},
+  {name:'Robot Rage',    img:'https://api.dicebear.com/9.x/fun-emoji/svg?seed=RobotRage',     emoji:'🤖'},
+  {name:'Gatto Gamer',   img:'https://api.dicebear.com/9.x/fun-emoji/svg?seed=GattoGamer',    emoji:'🐱'},
+  {name:'Pirata Pixel',  img:'https://api.dicebear.com/9.x/fun-emoji/svg?seed=PirataPixel',   emoji:'🏴‍☠️'},
+  {name:'Alieno Chat',   img:'https://api.dicebear.com/9.x/fun-emoji/svg?seed=AlienoChat',    emoji:'👽'},
+  {name:'Coach Tilt',    img:'https://api.dicebear.com/9.x/fun-emoji/svg?seed=CoachTilt',     emoji:'🏆'},
+  {name:'Fantasma AFK',  img:'https://api.dicebear.com/9.x/fun-emoji/svg?seed=FantasmaAFK',   emoji:'👻'}
+];
+
+/* Categorie: name = titolo mostrato, folder = cartella delle immagini,
+   images = nomi dei file (il nome della carta è il nome file senza estensione).
+   Per aggiungere una categoria copia un blocco e crea la sua cartella in img/. */
+var CATEGORIES = [
+  {
+    name: 'Youtuber',
+    folder: 'img/youtuber',
+    images: ['Andrea Moccia.jpg', 'andreagaleazzi.jpeg', 'Attrix.jpg', 'Blur.jpg', 'CiccioGamer89.jpg', 'Crappo.png', 'Cydonia.jpeg', 'Danny Lazzarin.jpg', 'Dario Moccia.jpg', 'Dlarzz.jpg', 'falconero.jpg', 'Favji.jpg', 'Fierik.jpg', 'fraffrog.jpg', 'GaBBoDSQ.jpg', 'Giampytek.jpg', 'Haxo.jpg', 'ilMasseo.jpg', 'iNoobChannel.jpg', 'J0k3R.jpg', 'Jakidale.jpg', 'Kurolily.jpg', 'Leo.jpg', 'Lollolacustre.jpg', 'Luca Mastrangelo.jpg', 'LyonWGF.png', 'Maurizio Merluzzo.jpg', 'Me Contro Te.jpg', 'MikeShowSha.jpg', 'Neschio.jpg', 'Nicolò Balini.jpeg', 'PLAYERINSIDE.jpg', 'Poketonx.png', 'Poldo.jpg', 'Poly.webp', 'RichardHTT.jpg', 'Sabaku.jpg', 'Sickwolf.jpg', 'St3pNy.jpg', 'Surry.jpeg', 'Synergo.jpeg', 'Tearless Raptor.jpg', 'TheRealMarza.jpg', 'victorlaszlo88.jpg', 'xMurry.jpg', 'Yotobi.jpg']
+  },
+  {
+    name: 'Personaggi dei Videogiochi',
+    folder: 'img/personaggi dei videogiochi',
+    images: ['Aloy.webp', 'Altair.webp', 'Arthur Morgan.jpeg', 'Asura.jpg', 'Barry Wheeler.webp', 'Boozer.webp', 'Chloe Frazer.webp', 'Claire Redfield.jpg', 'Clank.webp', 'Cole Phelps.png', 'Connor.jpg', 'Crash Bandicoot.jpg', 'Dante.jpg', 'Daxter.jpg', 'Doomguy.jpg', 'Ellie.webp', 'Gehrman.webp', 'Geppetto.webp', 'Geralt.jpg', 'Ghost.webp', 'Gwyn.jpg', 'Hornet.jpg', 'Isaac.png', 'Joel.webp', 'Kirby.png', 'Kratos.png', 'Lara Croft.png', 'Leon.webp', 'Link.webp', 'Mario.webp', 'N.jpg', 'Otacon.webp', 'Pikachu.png', 'Poppy.webp', 'SANS.webp', 'Snake.jpg', 'Sonic.webp', 'Spyro.png', 'Steve.jpg', 'Tiger Shark.jpg']
+  },
+  {
+    name: 'Pokémon',
+    folder: 'img/pokémon',
+    images: ['Bulbasaur.png']
+  }
+];
+var MIN_CARDS = 20;
+var EMOJI_POOL = ['🎮','😎','🎬','🚀','⭐','🎧','🔥','🎯'];
+
+function seedUrl(name){ return 'https://api.dicebear.com/9.x/fun-emoji/svg?seed=' + encodeURIComponent(name); }
+function folderUrl(folder){ return folder.split('/').map(encodeURIComponent).join('/'); }
+
+function buildCharacters(cat){
+  var list = [], used = {};
+  var base = folderUrl(cat.folder || 'img');
+  (cat.images || []).forEach(function(f, i){
+    var name = f.replace(/\.[^.]+$/, '');
+    var key = name.toLowerCase();
+    if(!name || used[key]){ return; }
+    used[key] = true;
+    list.push({name:name, file:base + '/' + encodeURIComponent(f), fb:seedUrl(name), emoji:EMOJI_POOL[i % EMOJI_POOL.length]});
+  });
+  DEFAULTS.forEach(function(d){
+    if(list.length >= MIN_CARDS){ return; }
+    var key = d.name.toLowerCase();
+    if(used[key]){ return; }
+    used[key] = true;
+    list.push({name:d.name, file:null, fb:d.img, emoji:d.emoji});
+  });
+  while(list.length < MIN_CARDS){
+    list.push({name:'Carta ' + (list.length + 1), file:null, fb:null, emoji:'🃏'});
+  }
+  return list;
+}
+var CHARACTERS = [];
+var catName = '';
+
+var PREFIX = 'indovinachi-';
+var PEER_OPTS = {
+  config: {
+    iceServers: [
+      { urls: 'stun:stun.l.google.com:19302' },
+      { urls: 'stun:stun1.l.google.com:19302' },
+      { urls: 'stun:stun2.l.google.com:19302' }
+    ]
+  }
+};
+var ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+
+var peer = null, isHost = false, myN = 0, myName = '', roomCode = '';
+var conns = [], hostConn = null, roster = {};
+var secret = null, locked = false, guessMode = false, entered = false, joinTimer = null;
+var eliminated = {};
+
+function $(id){ return document.getElementById(id); }
+
+/* ---------- Utilità UI ---------- */
+function log(text, cls){
+  var d = document.createElement('div');
+  d.className = 'line ' + (cls || '');
+  var t = new Date().toLocaleTimeString('it-IT', {hour:'2-digit', minute:'2-digit'});
+  d.textContent = '[' + t + '] ' + text;
+  $('log').appendChild(d);
+  $('log').scrollTop = $('log').scrollHeight;
+}
+function setupMsg(t){ $('setupMsg').textContent = t || ''; }
+function pname(n){
+  var p = roster[n];
+  return p ? p.name : 'Giocatore ' + n;
+}
+function makeFace(ch){
+  var f = document.createElement('div');
+  f.className = 'face';
+  var sources = [ch.file, ch.fb].filter(Boolean);
+  var idx = 0;
+  function showEmoji(){
+    f.textContent = '';
+    var e = document.createElement('span');
+    e.className = 'emo';
+    e.textContent = ch.emoji || '🃏';
+    f.appendChild(e);
+  }
+  if(!sources.length){ showEmoji(); return f; }
+  var im = document.createElement('img');
+  im.alt = ch.name;
+  im.referrerPolicy = 'no-referrer';
+  im.onerror = function(){
+    idx++;
+    if(idx < sources.length){ im.src = sources[idx]; }
+    else { showEmoji(); }
+  };
+  im.src = sources[0];
+  f.appendChild(im);
+  return f;
+}
+function randCode(){
+  var s = '';
+  for(var i = 0; i < 5; i++){ s += ALPHABET.charAt(Math.floor(Math.random() * ALPHABET.length)); }
+  return s;
+}
+function nameVal(){ return ($('nameIn').value.trim() || 'Giocatore').slice(0, 20); }
+
+/* ---------- Tabellone ---------- */
+function buildBoard(){
+  var b = $('board');
+  b.textContent = '';
+  CHARACTERS.forEach(function(ch, i){
+    var c = document.createElement('div');
+    c.className = 'card';
+    c.tabIndex = 0;
+    c.setAttribute('role', 'button');
+    c.dataset.i = i;
+    c.appendChild(makeFace(ch));
+    var n = document.createElement('div');
+    n.className = 'nm';
+    n.textContent = ch.name;
+    c.appendChild(n);
+    c.addEventListener('click', function(){ onCard(i); });
+    c.addEventListener('keydown', function(e){
+      if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); onCard(i); }
+    });
+    b.appendChild(c);
+  });
+}
+function cardEl(i){ return $('board').children[i]; }
+
+function onCard(i){
+  if(!locked){
+    secret = i;
+    updateSecret();
+    return;
+  }
+  if(guessMode){ doGuess(i); return; }
+  var el = cardEl(i);
+  if(eliminated[i]){ delete eliminated[i]; el.classList.remove('out'); }
+  else { eliminated[i] = true; el.classList.add('out'); }
+}
+var secretHidden = false;
+function refreshSecretName(){
+  var t = 'Nessuna scelta';
+  if(secret !== null){ t = secretHidden ? '*****' : CHARACTERS[secret].name; }
+  $('secretName').textContent = t;
+}
+function refreshSecretMask(){
+  $('secretBox').classList.toggle('masked', secretHidden);
+  $('hideSecretBtn').textContent = secretHidden ? 'Mostra carta segreta' : 'Nascondi carta segreta';
+  refreshSecretName();
+  if(secret !== null && locked){
+    var el = cardEl(secret);
+    if(el){
+      if(secretHidden){
+        el.classList.remove('mine');
+      } else {
+        el.classList.add('mine');
+      }
+    }
+  }
+}
+function updateSecret(){
+  var box = $('secretFace');
+  var all = $('board').children;
+  for(var k = 0; k < all.length; k++){ all[k].classList.remove('pick', 'mine'); }
+  if(secret === null){
+    box.textContent = '';
+    var q = document.createElement('span');
+    q.className = 'emo';
+    q.textContent = '?';
+    box.appendChild(q);
+    refreshSecretName();
+    return;
+  }
+  var ch = CHARACTERS[secret];
+  var nf = makeFace(ch);
+  box.replaceWith(nf);
+  nf.id = 'secretFace';
+  refreshSecretName();
+  cardEl(secret).classList.add(locked ? 'mine' : 'pick');
+  $('confirmBtn').disabled = locked;
+}
+
+/* ---------- Rete ---------- */
+function broadcast(msg){
+  conns.forEach(function(c){ if(c.open){ c.send(msg); } });
+}
+function post(msg){
+  msg.from = myN;
+  if(isHost){ broadcast(msg); }
+  else if(hostConn && hostConn.open){ hostConn.send(msg); }
+  handle(msg);
+}
+function hostSys(text){
+  log(text, 'sys');
+  broadcast({t:'sys', text:text});
+}
+function pushRoster(){
+  renderRoster();
+  broadcast({t:'roster', roster:roster});
+}
+
+function createRoom(cat){
+  setupMsg('');
+  CHARACTERS = buildCharacters(cat);
+  catName = cat.name;
+  myName = nameVal();
+  isHost = true;
+  myN = 1;
+  tryCreate(0);
+}
+function tryCreate(attempt){
+  var code = randCode();
+  peer = new Peer(PREFIX + code, PEER_OPTS);
+  peer.on('open', function(){
+    roomCode = code;
+    roster[1] = {name:myName, ready:false};
+    enterGame();
+    log('Stanza creata. Categoria: ' + catName + '. Condividi il codice con gli altri giocatori.', 'sys');
+    log(myName + ' connesso', 'sys');
+  });
+  peer.on('connection', onIncoming);
+  peer.on('error', function(e){
+    if(e.type === 'unavailable-id' && attempt < 4){ peer.destroy(); tryCreate(attempt + 1); }
+    else if(entered){ log('Errore di rete: ' + e.type, 'err'); }
+    else { setupMsg('Errore di rete: ' + e.type + '. Controlla la connessione e riprova.'); }
+  });
+}
+function onIncoming(conn){
+  conn.on('data', function(d){ onHostData(conn, d); });
+  conn.on('close', function(){
+    var i = conns.indexOf(conn);
+    if(i < 0){ return; }
+    conns.splice(i, 1);
+    var n = conn.n;
+    var nm = roster[n] ? roster[n].name : '';
+    delete roster[n];
+    hostSys((nm || 'Giocatore ' + n) + ' disconnesso');
+    pushRoster();
+  });
+}
+function onHostData(conn, d){
+  if(d.t === 'hello'){
+    if(conns.length >= 2){
+      conn.send({t:'full'});
+      setTimeout(function(){ conn.close(); }, 400);
+      return;
+    }
+    var n = 2;
+    if(conns.some(function(c){ return c.n === 2; })){ n = 3; }
+    conn.n = n;
+    conns.push(conn);
+    var nm = String(d.name || 'Giocatore').slice(0, 20);
+    var taken = Object.keys(roster).some(function(k){ return roster[k].name.toLowerCase() === nm.toLowerCase(); });
+    if(taken){ nm = nm.slice(0, 17) + ' ' + n; }
+    roster[n] = {name:nm, ready:false};
+    conn.send({t:'welcome', n:n, code:roomCode, chars:CHARACTERS, category:catName, name:roster[n].name});
+    hostSys(roster[n].name + ' connesso');
+    pushRoster();
+    return;
+  }
+  if(!conn.n){ return; }
+  d.from = conn.n;
+  handle(d);
+  conns.forEach(function(c){ if(c !== conn && c.open){ c.send(d); } });
+}
+
+function joinRoom(){
+  setupMsg('');
+  var code = $('codeIn').value.trim().toUpperCase();
+  if(!code){ setupMsg('Inserisci il codice della stanza.'); return; }
+  myName = nameVal();
+  isHost = false;
+  roomCode = code;
+  setupMsg('Connessione in corso...');
+  peer = new Peer(undefined, PEER_OPTS);
+  peer.on('open', function(){
+    hostConn = peer.connect(PREFIX + code, {reliable:true});
+    hostConn.on('open', function(){ hostConn.send({t:'hello', name:myName}); });
+    hostConn.on('data', handle);
+    hostConn.on('close', function(){
+      if(entered){ log('Connessione con l\'host persa. La partita è terminata.', 'err'); }
+    });
+    clearTimeout(joinTimer);
+    joinTimer = setTimeout(function(){
+      if(!entered){ setupMsg('Stanza non raggiungibile. Controlla il codice e riprova.'); }
+    }, 10000);
+  });
+  peer.on('error', function(e){
+    var m = (e.type === 'peer-unavailable') ? 'Stanza non trovata. Controlla il codice.' : 'Errore di rete: ' + e.type;
+    if(entered){ log(m, 'err'); } else { setupMsg(m); }
+  });
+}
+
+/* ---------- Gestione messaggi ---------- */
+function handle(d){
+  switch(d.t){
+    case 'welcome':
+      myN = d.n;
+      if(d.name){ myName = d.name; }
+      if(d.chars && d.chars.length){ CHARACTERS = d.chars; }
+      if(d.category){ catName = d.category; }
+      roomCode = d.code || roomCode;
+      clearTimeout(joinTimer);
+      enterGame();
+      log('Connesso alla stanza come ' + myName + '. Categoria: ' + catName, 'sys');
+      break;
+    case 'full':
+      setupMsg('Stanza piena: massimo 3 giocatori.');
+      break;
+    case 'roster':
+      roster = d.roster;
+      renderRoster();
+      break;
+    case 'sys':
+      log(d.text, 'sys');
+      break;
+    case 'chat':
+      log(pname(d.from) + ': ' + d.text, 'chat');
+      break;
+    case 'ready':
+      if(roster[d.from]){ roster[d.from].ready = true; }
+      renderRoster();
+      log(pname(d.from) + ' ha scelto la carta segreta ed è pronto.', 'sys');
+      checkAllReady();
+      break;
+    case 'unready':
+      if(roster[d.from]){ roster[d.from].ready = false; }
+      renderRoster();
+      log(pname(d.from) + ' ha ripristinato la partita.', 'sys');
+      break;
+    case 'guess':
+      if(d.to === myN && secret !== null){
+        post({t:'result', guesser:d.from, target:myN, card:d.card, ok:(secret === d.card)});
+      }
+      break;
+    case 'result':
+      var cn = CHARACTERS[d.card] ? CHARACTERS[d.card].name : '?';
+      if(d.ok){ log(pname(d.guesser) + ' ha INDOVINATO! La carta di ' + pname(d.target) + ' era ' + cn + '.', 'win'); }
+      else { log(pname(d.guesser) + ' ha sbagliato: la carta di ' + pname(d.target) + ' non è ' + cn + '.', 'err'); }
+      break;
+  }
+}
+function checkAllReady(){
+  var ids = Object.keys(roster);
+  if(ids.length >= 2 && ids.every(function(k){ return roster[k].ready; })){
+    log('Tutti i giocatori sono pronti: iniziate a fare domande!', 'win');
+  }
+}
+
+/* ---------- Azioni ---------- */
+function confirmSecret(){
+  if(secret === null || locked){ return; }
+  locked = true;
+  $('confirmBtn').disabled = true;
+  $('guessBtn').disabled = false;
+  $('hint').textContent = 'Clicca le carte per eliminarle (di nuovo per ripristinarle). Usa la chat per le domande.';
+  updateSecret();
+  post({t:'ready'});
+}
+function toggleGuess(){
+  guessMode = !guessMode;
+  $('board').classList.toggle('guessing', guessMode);
+  $('guessBtn').textContent = guessMode ? 'Annulla tentativo' : 'Tenta di indovinare';
+  $('hint').textContent = guessMode
+    ? 'Modalità tentativo: clicca la carta che pensi sia quella dell\'avversario.'
+    : 'Clicca le carte per eliminarle (di nuovo per ripristinarle). Usa la chat per le domande.';
+}
+function opponents(){
+  return Object.keys(roster).map(Number).filter(function(n){ return n !== myN; });
+}
+function doGuess(i){
+  var opp = opponents();
+  if(!opp.length){ log('Non ci sono avversari connessi.', 'err'); return; }
+  var target = opp.length === 1 ? opp[0] : Number($('target').value);
+  if(!window.confirm('Pensi che la carta di ' + pname(target) + ' sia ' + CHARACTERS[i].name + '?')){ return; }
+  log('Hai tentato ' + CHARACTERS[i].name + ' per ' + pname(target) + '...', 'sys');
+  post({t:'guess', to:target, card:i});
+  toggleGuess();
+}
+function resetBoard(){
+  eliminated = {};
+  var all = $('board').children;
+  for(var k = 0; k < all.length; k++){ all[k].classList.remove('out'); }
+  if(guessMode){ toggleGuess(); }
+  locked = false;
+  secret = null;
+  updateSecret();
+  $('confirmBtn').disabled = true;
+  $('guessBtn').disabled = true;
+  $('hint').textContent = 'Clicca una carta per sceglierla come segreta, poi conferma.';
+  post({t:'unready'});
+}
+function renderRoster(){
+  var r = $('roster');
+  r.textContent = '';
+  Object.keys(roster).forEach(function(k){
+    var c = document.createElement('span');
+    c.className = 'chip' + (roster[k].ready ? ' ready' : '');
+    c.textContent = roster[k].name + (Number(k) === myN ? ' (tu)' : '') + (roster[k].ready ? ' ✓' : '');
+    r.appendChild(c);
+  });
+  var sel = $('target');
+  var prev = sel.value;
+  sel.textContent = '';
+  var opp = opponents();
+  opp.forEach(function(n){
+    var o = document.createElement('option');
+    o.value = n;
+    o.textContent = pname(n);
+    sel.appendChild(o);
+  });
+  if(prev){ sel.value = prev; }
+  sel.classList.toggle('hidden', opp.length < 2);
+}
+function enterGame(){
+  entered = true;
+  setupMsg('');
+  $('setup').classList.add('hidden');
+  $('game').classList.remove('hidden');
+  document.body.classList.add('in-game');
+  refreshCode();
+  buildBoard();
+  renderRoster();
+}
+
+/* ---------- Selezione categoria ---------- */
+function openCategories(){
+  setupMsg('');
+  if(!CATEGORIES.length){ setupMsg('Nessuna categoria disponibile.'); return; }
+  var grid = $('catGrid');
+  grid.textContent = '';
+  CATEGORIES.forEach(function(cat){
+    var chars = buildCharacters(cat);
+    var b = document.createElement('button');
+    b.type = 'button';
+    b.className = 'cat-box';
+    var t = document.createElement('div');
+    t.className = 'cat-title';
+    t.textContent = cat.name;
+    b.appendChild(t);
+    var pv = document.createElement('div');
+    pv.className = 'cat-prev';
+    for(var i = 0; i < 3; i++){ pv.appendChild(makeFace(chars[i])); }
+    var more = document.createElement('div');
+    more.className = 'cat-more';
+    more.textContent = chars.length > 3 ? '+' + (chars.length - 3) : '+';
+    pv.appendChild(more);
+    b.appendChild(pv);
+    b.addEventListener('click', function(){ closeCategories(false); createRoom(cat); });
+    grid.appendChild(b);
+  });
+  $('catModal').classList.remove('hidden');
+  grid.firstChild.focus();
+}
+function closeCategories(refocus){
+  $('catModal').classList.add('hidden');
+  if(refocus){ $('createBtn').focus(); }
+}
+$('catCancel').addEventListener('click', function(){ closeCategories(true); });
+$('catModal').addEventListener('click', function(e){ if(e.target === $('catModal')){ closeCategories(true); } });
+document.addEventListener('keydown', function(e){
+  if(e.key === 'Escape' && !$('catModal').classList.contains('hidden')){ closeCategories(true); }
+});
+
+/* ---------- Eventi ---------- */
+$('createBtn').addEventListener('click', openCategories);
+$('joinBtn').addEventListener('click', joinRoom);
+$('codeIn').addEventListener('keydown', function(e){ if(e.key === 'Enter'){ joinRoom(); } });
+$('confirmBtn').addEventListener('click', confirmSecret);
+$('guessBtn').addEventListener('click', toggleGuess);
+$('resetBtn').addEventListener('click', resetBoard);
+$('hideSecretBtn').addEventListener('click', function(){ secretHidden = !secretHidden; refreshSecretMask(); });
+var codeHidden = false;
+function refreshCode(){
+  $('roomCode').textContent = codeHidden ? new Array(roomCode.length + 1).join('*') : roomCode;
+  $('hideBtn').textContent = codeHidden ? 'Mostra codice' : 'Nascondi codice';
+}
+function copyCode(){
+  if(navigator.clipboard && navigator.clipboard.writeText){
+    navigator.clipboard.writeText(roomCode).then(
+      function(){ log('Codice stanza copiato.', 'sys'); },
+      function(){ log('Copia non riuscita.', 'err'); });
+  } else { log('Copia non supportata da questo browser.', 'err'); }
+}
+$('roomCode').addEventListener('click', copyCode);
+$('roomCode').addEventListener('keydown', function(e){
+  if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); copyCode(); }
+});
+$('hideBtn').addEventListener('click', function(){ codeHidden = !codeHidden; refreshCode(); });
+(function(){
+  var h = $('title'), t = h.textContent, k = 0;
+  var cols = ['#ff4d4d','#ff9f1a','#ffd700','#4cd137','#00d2d3','#3d7bff','#a55eea','#ff6bd6'];
+  h.setAttribute('aria-label', t);
+  h.textContent = '';
+  for(var i = 0; i < t.length; i++){
+    var sp = document.createElement('span');
+    sp.setAttribute('aria-hidden', 'true');
+    sp.textContent = t.charAt(i);
+    if(t.charAt(i) !== ' '){ sp.style.color = cols[k++ % cols.length]; }
+    h.appendChild(sp);
+  }
+})();
+$('chatForm').addEventListener('submit', function(e){
+  e.preventDefault();
+  var v = $('chatIn').value.trim();
+  if(!v){ return; }
+  $('chatIn').value = '';
+  post({t:'chat', text:v});
+});
+})();
+</script>
+</body>
+</html>
+<!-- 
+1. Solo domande estetiche (in teoria, a noi non ce ne frega).
+2. Si può rispondere solo con Sì o NO.
+3. Abbiamo un JOLLY "Mutismo selettivo": ad una domanda possiamo evitare di rispondere.
+4. Non si può ripetere una domanda già fatta.
+
+$f = Get-ChildItem -File | Where-Object { $_.Extension -match '^\.(jpg|jpeg|png|gif|webp)$' } | Sort-Object Name; (($f | ForEach-Object { "'" + ($_.Name -replace "'", "\'") + "'" }) -join ', ') | Set-Clipboard
+-->
