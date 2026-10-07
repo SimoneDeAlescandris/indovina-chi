@@ -279,15 +279,107 @@ var CHARACTERS = [];
 var catName = '';
 
 var PREFIX = 'indovinachi-';
-var PEER_OPTS = {
-  config: {
-    iceServers: [
-      { urls: 'stun:stun.l.google.com:19302' },
-      { urls: 'stun:stun1.l.google.com:19302' },
-      { urls: 'stun:stun2.l.google.com:19302' }
-    ]
+/* TURN gratuito (Metered): registrati su https://dashboard.metered.ca/signup, crea un'app
+   e una credenziale TURN, poi copia qui il nome dell'app (nomeapp.metered.live) e la sua API key. */
+var METERED_APP = 'indovina-chi.metered.live';
+var METERED_KEY = 'a5d9c1fafa80535908cb05f932aa64e5ba5b';
+var STUN_SERVERS = [
+  { urls: 'stun:stun.l.google.com:19302' },
+  { urls: 'stun:stun1.l.google.com:19302' },
+  { urls: 'stun:stun2.l.google.com:19302' },
+  { urls: 'stun:stun.relay.metered.ca:80' }
+];
+/* Relay pubblici di riserva (non garantiti): usati solo se Metered non è configurato o non risponde. */
+var FALLBACK_TURN = [
+  { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
+  { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
+  { urls: 'turns:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' }
+];
+var iceCache = null;
+
+function dbg(){ console.log.apply(console, ['[IndovinaChi]'].concat([].slice.call(arguments))); }
+function dbgw(){ console.warn.apply(console, ['[IndovinaChi]'].concat([].slice.call(arguments))); }
+
+function buildOpts(turn){
+  var cfg = { iceServers: STUN_SERVERS.concat(turn) };
+  if(/[?&]relay=1/.test(location.search)){
+    cfg.iceTransportPolicy = 'relay';
+    dbgw('Modalità test ?relay=1: la connessione passerà SOLO dal server TURN.');
   }
-};
+  return { debug: 2, config: cfg };
+}
+function getPeerOpts(cb){
+  if(iceCache){ cb(buildOpts(iceCache)); return; }
+  if(!METERED_APP || !METERED_KEY){
+    dbgw('TURN Metered non configurato (METERED_APP / METERED_KEY vuoti): uso solo i relay pubblici di riserva, non garantiti. Le reti mobili o con CGNAT potrebbero non connettersi.');
+    iceCache = FALLBACK_TURN;
+    cb(buildOpts(iceCache));
+    return;
+  }
+  var done = false;
+  function finish(turn, msg){
+    if(done){ return; }
+    done = true;
+    clearTimeout(t);
+    if(msg){ dbgw(msg); }
+    iceCache = turn;
+    cb(buildOpts(turn));
+  }
+  var t = setTimeout(function(){ finish(FALLBACK_TURN, 'Timeout (5s) nel recupero delle credenziali TURN: uso i relay di riserva.'); }, 5000);
+  fetch('https://' + METERED_APP + '.metered.live/api/v1/turn/credentials?apiKey=' + encodeURIComponent(METERED_KEY))
+    .then(function(r){ if(!r.ok){ throw new Error('HTTP ' + r.status); } return r.json(); })
+    .then(function(list){
+      if(!Array.isArray(list) || !list.length){ throw new Error('risposta vuota'); }
+      dbg('Credenziali TURN Metered caricate (' + list.length + ' server).');
+      finish(list);
+    })
+    .catch(function(e){ finish(FALLBACK_TURN, 'Credenziali TURN Metered non disponibili (' + e.message + '): uso i relay di riserva.'); });
+}
+
+/* Diagnostica WebRTC/PeerJS in console */
+function logRoute(pc, label){
+  if(!pc.getStats){ return; }
+  pc.getStats().then(function(stats){
+    var byId = {}, selId = null, pair = null;
+    stats.forEach(function(r){
+      byId[r.id] = r;
+      if(r.type === 'transport' && r.selectedCandidatePairId){ selId = r.selectedCandidatePairId; }
+    });
+    if(selId){ pair = byId[selId]; }
+    else { stats.forEach(function(r){ if(r.type === 'candidate-pair' && r.nominated && r.state === 'succeeded'){ pair = r; } }); }
+    if(pair){
+      var l = byId[pair.localCandidateId], rm = byId[pair.remoteCandidateId];
+      dbg(label + ': percorso ICE scelto locale=' + (l && l.candidateType) + ' remoto=' + (rm && rm.candidateType) + ' (relay = passa dal TURN)');
+    }
+  }).catch(function(){});
+}
+function watchIce(conn, label){
+  var pc = conn.peerConnection;
+  if(!pc){ dbgw(label + ': peerConnection non disponibile per la diagnostica.'); return; }
+  var t0 = Date.now();
+  function secs(){ return ((Date.now() - t0) / 1000).toFixed(1) + 's'; }
+  pc.addEventListener('iceconnectionstatechange', function(){
+    dbg(label + ': ICE connection = ' + pc.iceConnectionState + ' (' + secs() + ')');
+    if(pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed'){ logRoute(pc, label); }
+    if(pc.iceConnectionState === 'failed'){
+      dbgw(label + ': negoziazione ICE fallita. Probabile NAT restrittivo/CGNAT: serve un server TURN funzionante (prova ?relay=1 per verificarlo).');
+    }
+  });
+  pc.addEventListener('icegatheringstatechange', function(){ dbg(label + ': ICE gathering = ' + pc.iceGatheringState + ' (' + secs() + ')'); });
+  pc.addEventListener('connectionstatechange', function(){ dbg(label + ': connessione = ' + pc.connectionState); });
+  pc.addEventListener('icecandidateerror', function(e){
+    dbgw(label + ': errore candidato ICE', e.errorCode || '', e.errorText || '', e.url || '');
+  });
+  conn.on('error', function(err){ dbgw(label + ': errore canale dati', err); });
+}
+function watchPeer(p){
+  p.on('open', function(id){ dbg('Connesso al server di segnalazione PeerJS, id =', id); });
+  p.on('disconnected', function(){
+    dbgw('Disconnesso dal server di segnalazione PeerJS.');
+    if(!p.destroyed){ dbg('Provo a riconnettermi...'); p.reconnect(); }
+  });
+  p.on('close', function(){ dbg('Peer chiuso.'); });
+}
 var ALPHABET = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
 
 var peer = null, isHost = false, myN = 0, myName = '', roomCode = '';
@@ -450,8 +542,12 @@ function createRoom(cat){
   tryCreate(0);
 }
 function tryCreate(attempt){
+  getPeerOpts(function(opts){ startHost(attempt, opts); });
+}
+function startHost(attempt, opts){
   var code = randCode();
-  peer = new Peer(PREFIX + code, PEER_OPTS);
+  peer = new Peer(PREFIX + code, opts);
+  watchPeer(peer);
   peer.on('open', function(){
     roomCode = code;
     roster[1] = {name:myName, ready:false};
@@ -461,12 +557,15 @@ function tryCreate(attempt){
   });
   peer.on('connection', onIncoming);
   peer.on('error', function(e){
+    dbgw('Errore peer (host):', e.type, e);
     if(e.type === 'unavailable-id' && attempt < 4){ peer.destroy(); tryCreate(attempt + 1); }
     else if(entered){ log('Errore di rete: ' + e.type, 'err'); }
     else { setupMsg('Errore di rete: ' + e.type + '. Controlla la connessione e riprova.'); }
   });
 }
 function onIncoming(conn){
+  dbg('Connessione in ingresso da', conn.peer);
+  watchIce(conn, 'host');
   conn.on('data', function(d){ onHostData(conn, d); });
   conn.on('close', function(){
     var i = conns.indexOf(conn);
@@ -513,9 +612,15 @@ function joinRoom(){
   isHost = false;
   roomCode = code;
   setupMsg('Connessione in corso...');
-  peer = new Peer(undefined, PEER_OPTS);
+  getPeerOpts(function(opts){ startGuest(code, opts); });
+}
+function startGuest(code, opts){
+  peer = new Peer(undefined, opts);
+  watchPeer(peer);
   peer.on('open', function(){
+    dbg('Provo a connettermi alla stanza', code);
     hostConn = peer.connect(PREFIX + code, {reliable:true});
+    watchIce(hostConn, 'guest');
     hostConn.on('open', function(){ hostConn.send({t:'hello', name:myName}); });
     hostConn.on('data', handle);
     hostConn.on('close', function(){
@@ -523,10 +628,14 @@ function joinRoom(){
     });
     clearTimeout(joinTimer);
     joinTimer = setTimeout(function(){
-      if(!entered){ setupMsg('Stanza non raggiungibile. Controlla il codice e riprova.'); }
-    }, 10000);
+      if(!entered){
+        dbgw('Timeout (20s): il canale dati con l\'host non si è aperto. Controlla gli stati ICE sopra.');
+        setupMsg('Stanza non raggiungibile. Controlla il codice o la rete (dettagli nella console del browser).');
+      }
+    }, 20000);
   });
   peer.on('error', function(e){
+    dbgw('Errore peer (guest):', e.type, e);
     var m = (e.type === 'peer-unavailable') ? 'Stanza non trovata. Controlla il codice.' : 'Errore di rete: ' + e.type;
     if(entered){ log(m, 'err'); } else { setupMsg(m); }
   });

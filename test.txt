@@ -1,0 +1,26 @@
+<!-- 
+1. Solo domande estetiche (in teoria, a noi non ce ne frega).
+2. Si può rispondere solo con Sì o NO.
+3. Abbiamo un JOLLY "Mutismo selettivo": ad una domanda possiamo evitare di rispondere.
+4. Non si può ripetere una domanda già fatta.
+
+$f = Get-ChildItem -File | Where-Object { $_.Extension -match '^\.(jpg|jpeg|png|gif|webp)$' } | Sort-Object Name; (($f | ForEach-Object { "'" + ($_.Name -replace "'", "\'") + "'" }) -join ', ') | Set-Clipboard
+-->
+
+var CATEGORIES = [
+  {
+    name: 'Youtuber',
+    folder: 'img/youtuber',
+    images: ['Andrea Moccia.jpg', 'andreagaleazzi.jpeg', 'Attrix.jpg', 'Blur.jpg', 'CiccioGamer89.jpg', 'Crappo.png', 'Cydonia.jpeg', 'Danny Lazzarin.jpg', 'Dario Moccia.jpg', 'Dlarzz.jpg', 'falconero.jpg', 'Favji.jpg', 'Fierik.jpg', 'fraffrog.jpg', 'GaBBoDSQ.jpg', 'Giampytek.jpg', 'Haxo.jpg', 'ilMasseo.jpg', 'iNoobChannel.jpg', 'J0k3R.jpg', 'Jakidale.jpg', 'Kurolily.jpg', 'Leo.jpg', 'Lollolacustre.jpg', 'Luca Mastrangelo.jpg', 'LyonWGF.png', 'Maurizio Merluzzo.jpg', 'Me Contro Te.jpg', 'MikeShowSha.jpg', 'Neschio.jpg', 'Nicolò Balini.jpeg', 'PLAYERINSIDE.jpg', 'Poketonx.png', 'Poldo.jpg', 'Poly.webp', 'RichardHTT.jpg', 'Sabaku.jpg', 'Sickwolf.jpg', 'St3pNy.jpg', 'Surry.jpeg', 'Synergo.jpeg', 'Tearless Raptor.jpg', 'TheRealMarza.jpg', 'victorlaszlo88.jpg', 'xMurry.jpg', 'Yotobi.jpg']
+  },
+  {
+    name: 'Personaggi dei Videogiochi',
+    folder: 'img/personaggi dei videogiochi',
+    images: ['Aloy.webp', 'Altair.webp', 'Arthur Morgan.jpeg', 'Asura.jpg', 'Barry Wheeler.webp', 'Boozer.webp', 'Chloe Frazer.webp', 'Claire Redfield.jpg', 'Clank.webp', 'Cole Phelps.png', 'Connor.jpg', 'Crash Bandicoot.jpg', 'Dante.jpg', 'Daxter.jpg', 'Doomguy.jpg', 'Ellie.webp', 'Gehrman.webp', 'Geppetto.webp', 'Geralt.jpg', 'Ghost.webp', 'Gwyn.jpg', 'Hornet.jpg', 'Isaac.png', 'Joel.webp', 'Kirby.png', 'Kratos.png', 'Lara Croft.png', 'Leon.webp', 'Link.webp', 'Mario.webp', 'N.jpg', 'Otacon.webp', 'Pikachu.png', 'Poppy.webp', 'SANS.webp', 'Snake.jpg', 'Sonic.webp', 'Spyro.png', 'Steve.jpg', 'Tiger Shark.jpg']
+  },
+  {
+    name: 'Pokémon',
+    folder: 'img/pokémon',
+    images: ['Bulbasaur.png']
+  }
+];
