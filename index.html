@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Indovina Chi?</title>
+<title>Indovina Chi? Edizione YouTuber</title>
 <meta name="description" content="Indovina Chi? online per 2 o 3 giocatori, in stile YouTuber. Crea una stanza e gioca con gli amici direttamente dal browser.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
@@ -41,9 +41,12 @@ body.in-game header h1{font-size:1.2rem;text-shadow:-1px -1px 0 #000,1px -1px 0 
 #setup .join{display:flex;gap:10px}
 #setup .join button{white-space:nowrap}
 #setupMsg{color:var(--bad);min-height:1.4em;text-align:center}
-footer{margin-top:40px;text-align:center;font-size:.65rem;opacity:.5}
+footer{margin-top:40px;text-align:center;font-size:.7rem;opacity:.6}
+footer .legal{max-width:640px;margin:8px auto;line-height:1.5}
 footer p{margin:2px 0}
-footer a{color:inherit}
+footer a{color:inherit;cursor:pointer;text-decoration:underline}
+footer .links a{margin:0 12px}
+footer a:focus-visible{outline:3px solid var(--accent2);outline-offset:2px}
 
 /* Setup centrato con footer in fondo */
 body:not(.in-game){display:flex;flex-direction:column;min-height:100vh;gap:14px}
@@ -59,35 +62,49 @@ body:not(.in-game) footer{margin-top:0;padding:24px 16px 12px;align-self:stretch
 .top{display:grid;grid-template-columns:auto 1fr;gap:16px;align-items:start;margin-bottom:12px}
 #secretBox{width:150px;background:var(--panel);border:3px solid var(--accent2);border-radius:14px;padding:10px;text-align:center}
 #secretBox small{display:block;color:var(--muted);font-size:.8rem;margin-bottom:6px}
-#secretBox .face{height:96px}
+#secretBox .face{width:96px;height:96px;aspect-ratio:1/1;margin:0 auto}
 #secretName{font-weight:700;margin-top:6px;font-size:.9rem;min-height:1.3em}
 #secretBox.masked #secretFace{-webkit-filter:blur(12px) brightness(.2);filter:blur(12px) brightness(.2)}
 #secretBox.masked #secretName{letter-spacing:.2em}
 .info{display:flex;flex-direction:column;gap:10px}
-#roster{display:flex;gap:8px;flex-wrap:wrap}
-.chip{background:var(--panel);border:2px solid var(--line);border-radius:999px;padding:2px 12px;font-size:.9rem}
+#roster{flex:none;display:flex;gap:6px;flex-wrap:wrap;margin-bottom:10px}
+.chip{background:var(--panel);border:2px solid var(--line);border-radius:999px;padding:1px 10px;font-size:.8rem}
 .chip.ready{border-color:var(--ok)}
 .actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}
 .actions select{width:auto}
 .hint{color:var(--muted);font-size:.9rem;margin:0 0 10px}
 
-.board{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px;flex:1;min-height:0;overflow-y:auto;align-content:start;padding:2px 4px 8px}
-.card{position:relative;background:var(--panel);border:3px solid var(--line);border-radius:12px;padding:8px;cursor:pointer;text-align:center;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;box-shadow:0 4px 0 #000;transition:opacity .15s,border-color .15s}
-.card .face{height:92px}
-.card .nm{font-size:.85rem;font-weight:600;margin-top:6px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.board{display:grid;grid-template-columns:repeat(auto-fill,minmax(112px,1fr));gap:10px;flex:1;min-height:0;overflow:hidden;align-content:start;padding:2px 4px 8px}
+.card{position:relative;display:flex;min-width:0;min-height:0;cursor:pointer;text-align:center;user-select:none;-webkit-user-select:none;-webkit-tap-highlight-color:transparent;-webkit-perspective:700px;perspective:700px}
+.card-inner{flex:1;min-width:0;min-height:0;display:grid;grid-template-columns:minmax(0,1fr);grid-template-rows:minmax(0,1fr);-webkit-transform-style:preserve-3d;transform-style:preserve-3d;transition:transform .5s cubic-bezier(.4,.2,.2,1)}
+.card-front,.card-back{grid-area:1/1;min-width:0;min-height:0;border-radius:12px;box-shadow:0 4px 0 #000;-webkit-backface-visibility:hidden;backface-visibility:hidden}
+.card-front{position:relative;display:flex;flex-direction:column;background:var(--panel);border:3px solid var(--line);padding:clamp(3px,calc(var(--cw,100px)*.06),8px);transition:border-color .15s}
+.card-back{display:flex;align-items:center;justify-content:center;border:3px solid var(--gold);background:repeating-linear-gradient(45deg,#14161c 0 7px,#1d1a0e 7px 14px);color:var(--gold);font-weight:700;font-size:calc(var(--cw,100px)*.4);text-shadow:0 2px 0 #000;-webkit-transform:rotateY(180deg);transform:rotateY(180deg)}
+.card.out .card-inner{-webkit-transform:rotateY(180deg);transform:rotateY(180deg)}
+.card .face{position:relative;flex:1;min-height:0;height:auto}
+.card .face img{position:absolute;top:0;left:0}
+.card .face .emo{font-size:calc(var(--cw,100px)*.38)}
+.card .nm{flex:none;font-size:clamp(.55rem,calc(var(--cw,100px)*.13),.95rem);font-weight:600;margin-top:clamp(2px,calc(var(--cw,100px)*.04),6px);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .face{display:flex;align-items:center;justify-content:center;border-radius:8px;background:var(--panel2);overflow:hidden}
 .face img{width:100%;height:100%;object-fit:cover;display:block}
 .face .emo{font-size:2.8rem}
-.card.out{opacity:.35;border-color:var(--bad)}
-.card.out::after{content:"\2715";position:absolute;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;font-size:3.4rem;color:var(--bad);font-weight:700}
-.card.pick{border-color:var(--accent2);box-shadow:0 0 0 3px rgba(77,225,210,.35)}
-.card.mine::before{content:"\2605";position:absolute;top:8px;right:12px;font-size: 1.4rem;line-height: 1;color:var(--accent);z-index:1;-webkit-text-stroke: 1.5px #000;filter: drop-shadow(0px 1px 1px rgba(0,0,0,0.8));}
-.board.guessing .card{cursor:crosshair;border-color:var(--gold)}
+.card.pick .card-front{border-color:var(--accent2);box-shadow:0 0 0 3px rgba(77,225,210,.35)}
+.card.mine .card-front::before{content:"\2605";position:absolute;top:4px;right:6px;font-size:clamp(.9rem,calc(var(--cw,100px)*.18),1.4rem);line-height:1;color:var(--accent);z-index:1;-webkit-text-stroke:1.5px #000}
+.board.guessing .card{cursor:crosshair}
+.board.guessing .card-front{border-color:var(--gold)}
 
 /* Selezione categoria */
 .modal{position:fixed;top:0;left:0;right:0;bottom:0;display:flex;align-items:center;justify-content:center;background:rgba(0,0,0,.78);z-index:50;padding:16px}
-.modal-box{background:var(--panel);border:3px solid var(--line);border-radius:16px;box-shadow:0 6px 0 #000;padding:28px;width:100%;max-width:880px;max-height:calc(100vh - 32px);overflow-y:auto;text-align:center}
+.modal-box{background:var(--panel);border:3px solid var(--line);border-radius:16px;box-shadow:0 6px 0 #000;padding:28px;width:100%;max-width:880px;max-height:calc(100vh - 32px);overflow-y:auto;text-align:center;position:relative;animation:slideUp .35s ease-out}
+@keyframes slideUp{from{transform:translateY(40vh);opacity:0}to{transform:translateY(0);opacity:1}}
 .modal-box h2{margin:0 0 20px;font-size:1.8rem;color:var(--gold);text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000,0 3px 0 #000}
+.all-toggle{position:relative;display:flex;align-items:center;justify-content:center;gap:14px;margin:0 auto 22px;max-width:560px;cursor:pointer;font-size:1rem;text-align:left;line-height:1.3}
+.all-toggle input{position:absolute;opacity:0;width:1px;height:1px;margin:0}
+.switch{flex:none;position:relative;width:54px;height:30px;border:3px solid var(--line);border-radius:999px;background:#3a3f4b;transition:background .2s}
+.switch::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:var(--text);transition:transform .2s}
+.all-toggle input:checked + .switch{background:var(--gold)}
+.all-toggle input:checked + .switch::after{transform:translateX(24px);background:var(--ink)}
+.all-toggle input:focus-visible + .switch{outline:3px solid var(--accent2);outline-offset:2px}
 .cat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,250px));justify-content:center;gap:18px;margin-bottom:22px}
 .cat-box{background:var(--panel2);color:var(--text);border:3px solid var(--line);border-radius:14px;padding:18px 26px 22px;box-shadow:0 4px 0 #000;display:flex;flex-direction:column;align-items:center;gap:14px}
 .cat-box:hover,.cat-box:focus-visible{border-color:var(--gold);transform:translateY(-2px)}
@@ -97,11 +114,22 @@ body:not(.in-game) footer{margin-top:0;padding:24px 16px 12px;align-self:stretch
 .cat-prev .face .emo{font-size:1.8rem}
 .cat-more{display:flex;align-items:center;justify-content:center;border:2px dashed var(--gold);border-radius:8px;font-weight:700;font-size:1.1rem;color:var(--gold)}
 
+/* Pop-up Regole e Crediti */
+.info-box{max-width:520px;text-align:left;padding:40px 32px 28px}
+.modal-x{position:absolute;top:10px;right:10px;width:38px;height:38px;padding:0;border-radius:50%;font-size:1.1rem;line-height:1}
+.rules{margin:0;padding-left:1.6em;font-size:1.1rem}
+.rules li{margin-bottom:16px;padding-left:6px;color:var(--text)}
+.rules li:last-child{margin-bottom:0}
+.rules li::marker{color:var(--gold);font-weight:700}
+.credits{list-style:none;margin:0;padding:0;text-align:center;font-size:1.4rem;color:var(--text)}
+.credits li{margin-bottom:12px}
+.credits li:last-child{margin-bottom:0}
+
 /* Codice stanza */
-.roombar{flex:none;padding-top:10px;align-self:center;display:flex;align-items:center;gap:8px;font-size:.85rem}
-#roomCode{font-weight:700;letter-spacing:.14em;background:var(--panel);border:2px dashed var(--gold);border-radius:8px;padding:2px 10px;cursor:pointer}
+.roombar{flex:none;margin-top:8px;padding-top:6px;border-top:2px solid var(--line);display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px 6px;font-size:.7rem;color:var(--muted)}
+#roomCode{font-weight:700;letter-spacing:.14em;background:var(--panel);border:2px dashed var(--gold);border-radius:7px;padding:3px 7px;font-size:.75rem;color:var(--text);cursor:pointer}
 #roomCode:hover{background:var(--panel2)}
-.roombar button{padding:3px 10px;font-size:.8rem;border-width:2px;box-shadow:0 3px 0 #000}
+.roombar button{padding:1px 8px;min-height:28px;font-size:.7rem;border-width:2px;box-shadow:0 2px 0 #000}
 
 /* Chat a destra */
 .logwrap{height:100%;display:flex;flex-direction:column;background:var(--panel);border:3px solid var(--line);border-radius:14px;padding:10px;min-width:0}
@@ -111,23 +139,46 @@ body:not(.in-game) footer{margin-top:0;padding:24px 16px 12px;align-self:stretch
 .line.chat{color:var(--text)}
 .line.win{color:var(--ok);font-weight:700}
 .line.err{color:var(--bad)}
+.ans-yes,.ans-no,.ans-jolly{display:inline-block;font-weight:700;border:1px solid currentColor;border-radius:6px;padding:0 6px}
+.ans-yes{color:var(--ok)}
+.ans-no{color:var(--bad)}
+.ans-jolly{color:var(--gold)}
+.quick-replies{flex:none;display:flex;gap:6px;margin-top:8px}
+.btn-quick{flex:1;min-width:0;min-height:32px;padding:3px 4px;font-size:.8rem;border-width:2px;border-radius:9px;box-shadow:0 2px 0 #000;white-space:nowrap}
+.btn-yes{background:var(--ok);color:#06210f}
+.btn-no{background:var(--bad);color:#2a0610}
+.btn-jolly{background:var(--gold);color:var(--ink)}
+#soundBtn{min-width:34px}
 #chatForm{display:flex;flex-direction:column;gap:6px;margin-top:8px}
 
 @media (max-width:900px){
   #game{grid-template-columns:1fr;grid-template-rows:auto;height:auto;min-height:100vh}
   .play{height:auto}
-  .board{overflow:visible}
-  .logwrap{height:320px}
-  .roombar{position:sticky;bottom:0;background:var(--bg);width:100%;justify-content:center;padding:8px}
+  .board{overflow:visible;gap:6px;grid-template-columns:repeat(auto-fill,minmax(clamp(64px,11vw,110px),1fr));padding:2px 3px 6px}
+  .card-front,.card-back{border-width:2px;border-radius:9px;box-shadow:0 3px 0 #000}
+  .card-inner{grid-template-rows:auto}
+  .card .face{flex:none;height:auto;aspect-ratio:1/1}
+  .logwrap{height:360px}
 }
 @media (max-width:560px){
-  .top{grid-template-columns:1fr}
-  #secretBox{width:100%}
-  #secretBox .face{height:80px}
-  .board{grid-template-columns:repeat(auto-fill,minmax(96px,1fr))}
+  #game{padding:50px 10px 10px}
+  #roster{gap:4px;margin-bottom:6px}
+  .chip{padding:0 8px;font-size:.72rem;border-width:2px}
+  .top{grid-template-columns:96px 1fr;gap:8px;align-items:start;margin-bottom:6px}
+  #secretBox{width:96px;padding:5px;border-width:2px;border-radius:10px}
+  #secretBox small{font-size:.55rem;line-height:1.1;margin-bottom:3px}
+  #secretBox .face{width:70px;height:70px}
+  #secretName{font-size:.68rem;margin-top:3px;min-height:1.1em;line-height:1.1;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+  .actions{display:grid;grid-template-columns:1fr 1fr;gap:5px}
+  .actions button{width:100%;min-height:38px;padding:5px 8px;font-size:.75rem;line-height:1.1;border-width:2px;border-radius:9px;box-shadow:0 2px 0 var(--goldd)}
+  .actions button.alt{box-shadow:0 2px 0 #000}
+  .actions select{grid-column:1/-1;width:100%;padding:5px 8px;font-size:.8rem}
+  .hint{font-size:.75rem;margin:0 0 6px}
   header img{height:60px}
 }
-@media (prefers-reduced-motion:reduce){.card,header img,header h1,button{transition:none}}
+@media (min-width:901px) and (max-width:1500px){.roombar>span:first-child{display:none}}
+@media (min-width:901px){html:has(body.in-game),body.in-game{overflow:hidden;height:100vh;height:100dvh}}
+@media (prefers-reduced-motion:reduce){.card,header img,header h1,button,.switch,.switch::after,.card-inner{transition:none}.modal-box{animation:none}}
 </style>
 </head>
 <body>
@@ -147,13 +198,15 @@ body:not(.in-game) footer{margin-top:0;padding:24px 16px 12px;align-self:stretch
     </div>
     <div id="setupMsg" role="alert"></div>
     <footer>
-      <p><a href="crediti.html">Crediti</a></p>
+      <p class="links"><a href="regole.html" id="rulesLink">Regole</a><a href="crediti.html" id="creditsLink">Crediti</a></p>
+      <p class="legal">Questo sito è un progetto amatoriale indipendente, creato a scopo puramente ricreativo e dimostrativo. &laquo;Indovina Chi?&raquo; è un marchio registrato di Hasbro, Inc. Il gioco da tavolo originale è stato ideato da Ora e Theo Coster (Theora Design). Questo sito non è ufficiale e non è affiliato né sponsorizzato da Hasbro o dai titolari dei diritti sui marchi, sui nomi e sulle immagini dei personaggi rappresentati.</p>
       <p>Il proprietario di questo sito non è responsabile per i contenuti generati dagli utenti (messaggi, nomi utente e personalizzazioni).</p>
     </footer>
   </section>
 
   <section id="game" class="hidden" aria-label="Partita">
     <div class="play">
+      <div id="roster"></div>
       <div class="top">
         <div id="secretBox" aria-live="polite">
           <small>La tua carta segreta (solo tu la vedi)</small>
@@ -161,7 +214,6 @@ body:not(.in-game) footer{margin-top:0;padding:24px 16px 12px;align-self:stretch
           <div id="secretName">Nessuna scelta</div>
         </div>
         <div class="info">
-          <div id="roster"></div>
           <div class="actions">
             <button id="confirmBtn" type="button" disabled>Conferma carta segreta</button>
             <button id="hideSecretBtn" class="alt" type="button">Nascondi carta segreta</button>
@@ -173,20 +225,26 @@ body:not(.in-game) footer{margin-top:0;padding:24px 16px 12px;align-self:stretch
       </div>
       <p class="hint" id="hint">Clicca una carta per sceglierla come segreta, poi conferma.</p>
       <div class="board" id="board"></div>
-      <div class="roombar">
-        <span>Stanza</span>
-        <span id="roomCode" role="button" tabindex="0" title="Clicca per copiare il codice">-----</span>
-        <button id="hideBtn" class="alt" type="button">Nascondi codice</button>
-      </div>
     </div>
 
     <aside class="logwrap" aria-label="Log e chat">
       <h2>Log e chat</h2>
       <div id="log" role="log" aria-live="polite"></div>
+      <div id="quickReplies" class="quick-replies">
+        <button type="button" class="btn-quick btn-yes" data-kind="yes">SÌ</button>
+        <button type="button" class="btn-quick btn-no" data-kind="no">NO</button>
+        <button type="button" class="btn-quick btn-jolly" data-kind="jolly">JOLLY</button>
+      </div>
       <form id="chatForm" autocomplete="off">
         <input id="chatIn" maxlength="200" placeholder="Scrivi un messaggio...">
         <button type="submit">Invia</button>
       </form>
+      <div class="roombar">
+        <span>Stanza</span>
+        <span id="roomCode" role="button" tabindex="0" title="Clicca per copiare il codice">-----</span>
+        <button id="hideBtn" class="alt" type="button">Nascondi codice</button>
+        <button id="soundBtn" class="alt" type="button" aria-pressed="true" aria-label="Audio attivo" title="Audio">🔊</button>
+      </div>
     </aside>
   </section>
 </main>
@@ -194,12 +252,40 @@ body:not(.in-game) footer{margin-top:0;padding:24px 16px 12px;align-self:stretch
 <div id="catModal" class="modal hidden">
   <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="catTitle">
     <h2 id="catTitle">Scegli la categoria</h2>
+    <label class="all-toggle" for="allToggle">
+      <span>Vuoi utilizzare tutti i personaggi presenti nella categoria?</span>
+      <input type="checkbox" id="allToggle" role="switch">
+      <span class="switch" aria-hidden="true"></span>
+    </label>
     <div id="catGrid" class="cat-grid"></div>
     <button id="catCancel" class="alt" type="button">Annulla</button>
   </div>
 </div>
 
+<div id="rulesModal" class="modal hidden">
+  <div class="modal-box info-box" role="dialog" aria-modal="true" aria-label="Regole">
+    <button class="modal-x" type="button" aria-label="Chiudi">&#10005;</button>
+    <ol class="rules">
+      <li>Solo domande estetiche (in teoria, a noi non ce ne frega).</li>
+      <li>Si può rispondere solo con SÌ o NO.</li>
+      <li>Abbiamo un JOLLY &quot;Mutismo selettivo&quot;: ad una domanda possiamo evitare di rispondere.</li>
+      <li>Non si può ripetere una domanda già fatta.</li>
+    </ol>
+  </div>
+</div>
+
+<div id="creditsModal" class="modal hidden">
+  <div class="modal-box info-box" role="dialog" aria-modal="true" aria-label="Crediti">
+    <button class="modal-x" type="button" aria-label="Chiudi">&#10005;</button>
+    <ul class="credits">
+      <li>Simone</li>
+      <li>Davide</li>
+    </ul>
+  </div>
+</div>
+
 <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/canvas-confetti@1.9.3/dist/confetti.browser.min.js"></script>
 <script>
 (function(){
 'use strict';
@@ -234,7 +320,7 @@ var CATEGORIES = [
   {
     name: 'Youtuber',
     folder: 'img/youtuber',
-    images: ['Andrea Moccia.jpg', 'andreagaleazzi.jpeg', 'Attrix.jpg', 'Blur.jpg', 'CiccioGamer89.jpg', 'Crappo.png', 'Cydonia.jpeg', 'Danny Lazzarin.jpg', 'Dario Moccia.jpg', 'Dlarzz.jpg', 'falconero.jpg', 'Favji.jpg', 'Fierik.jpg', 'fraffrog.jpg', 'GaBBoDSQ.jpg', 'Giampytek.jpg', 'Haxo.jpg', 'ilMasseo.jpg', 'iNoobChannel.jpg', 'J0k3R.jpg', 'Jakidale.jpg', 'Kurolily.jpg', 'Leo.jpg', 'Lollolacustre.jpg', 'Luca Mastrangelo.jpg', 'LyonWGF.png', 'Maurizio Merluzzo.jpg', 'Me Contro Te.jpg', 'MikeShowSha.jpg', 'Neschio.jpg', 'Nicolò Balini.jpeg', 'PLAYERINSIDE.jpg', 'Poketonx.png', 'Poldo.jpg', 'Poly.webp', 'RichardHTT.jpg', 'Sabaku.jpg', 'Sickwolf.jpg', 'St3pNy.jpg', 'Surry.jpeg', 'Synergo.jpeg', 'Tearless Raptor.jpg', 'TheRealMarza.jpg', 'victorlaszlo88.jpg', 'xMurry.jpg', 'Yotobi.jpg']
+    images: ['Andrea Moccia.jpg', 'andreagaleazzi.jpeg', 'Attrix.jpg', 'Barbascura X.png', 'Blur.jpg', 'CiccioGamer89.jpg', 'Crappo.png', 'Cydonia.jpeg', 'Danny Lazzarin.jpg', 'Dario Moccia.jpg', 'Dlarzz.jpg', 'falconero.jpg', 'Favji.jpg', 'Fierik.jpg', 'fraffrog.jpg', 'GaBBoDSQ.jpg', 'Giampytek.jpg', 'Haxo.jpg', 'ilMasseo.jpg', 'iNoobChannel.jpg', 'J0k3R.jpg', 'Jakidale.jpg', 'Kurolily.jpg', 'Leo.jpg', 'Lollolacustre.jpg', 'Luca Mastrangelo.jpg', 'LyonWGF.png', 'Maurizio Merluzzo.jpg', 'Me Contro Te.jpg', 'MikeShowSha.jpg', 'Neschio.jpg', 'Nicolò Balini.jpeg', 'PLAYERINSIDE.jpg', 'Poketonx.png', 'Poldo.jpg', 'Poly.webp', 'RichardHTT.jpg', 'Sabaku.jpg', 'Sickwolf.jpg', 'St3pNy.jpg', 'Surry.jpeg', 'Synergo.jpeg', 'Tearless Raptor.jpg', 'TheRealMarza.jpg', 'victorlaszlo88.jpg', 'xMurry.jpg', 'Yotobi.jpg']
   },
   {
     name: 'Personaggi dei Videogiochi',
@@ -248,6 +334,7 @@ var CATEGORIES = [
   }
 ];
 var MIN_CARDS = 20;
+var MAX_CARDS = 24;
 var EMOJI_POOL = ['🎮','😎','🎬','🚀','⭐','🎧','🔥','🎯'];
 
 function seedUrl(name){ return 'https://api.dicebear.com/9.x/fun-emoji/svg?seed=' + encodeURIComponent(name); }
@@ -275,14 +362,26 @@ function buildCharacters(cat){
   }
   return list;
 }
+function shuffle(a){
+  a = a.slice();
+  for(var i = a.length - 1; i > 0; i--){
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
 var CHARACTERS = [];
 var catName = '';
+var useAllChars = false, drawn = false;
+function modeText(){
+  return 'Carte in gioco: ' + CHARACTERS.length + (useAllChars ? ' (tutti i personaggi)' : (drawn ? ' (estratte a caso)' : ''));
+}
 
 var PREFIX = 'indovinachi-';
 /* TURN gratuito (Metered): registrati su https://dashboard.metered.ca/signup, crea un'app
    e una credenziale TURN, poi copia qui il nome dell'app (nomeapp.metered.live) e la sua API key. */
-var METERED_APP = 'indovina-chi.metered.live';
-var METERED_KEY = 'a5d9c1fafa80535908cb05f932aa64e5ba5b';
+var METERED_APP = '';
+var METERED_KEY = '';
 var STUN_SERVERS = [
   { urls: 'stun:stun.l.google.com:19302' },
   { urls: 'stun:stun1.l.google.com:19302' },
@@ -390,11 +489,17 @@ var eliminated = {};
 function $(id){ return document.getElementById(id); }
 
 /* ---------- Utilità UI ---------- */
-function log(text, cls){
+function log(text, cls, tail){
   var d = document.createElement('div');
   d.className = 'line ' + (cls || '');
   var t = new Date().toLocaleTimeString('it-IT', {hour:'2-digit', minute:'2-digit'});
   d.textContent = '[' + t + '] ' + text;
+  if(tail){
+    var sp = document.createElement('span');
+    sp.className = tail.cls;
+    sp.textContent = tail.text;
+    d.appendChild(sp);
+  }
   $('log').appendChild(d);
   $('log').scrollTop = $('log').scrollHeight;
 }
@@ -436,6 +541,64 @@ function randCode(){
 function nameVal(){ return ($('nameIn').value.trim() || 'Giocatore').slice(0, 20); }
 
 /* ---------- Tabellone ---------- */
+/* ---------- Audio (Web Audio API) e coriandoli ---------- */
+var AC = window.AudioContext || window.webkitAudioContext, actx = null, soundOn = true;
+try{ if(localStorage.getItem('indovinachi-sound') === 'off'){ soundOn = false; } }catch(e){}
+function audioCtx(){
+  if(!soundOn || !AC){ return null; }
+  if(!actx){ try{ actx = new AC(); }catch(e){ return null; } }
+  if(actx.state === 'suspended' && actx.resume){ actx.resume(); }
+  return actx;
+}
+function tone(freq, start, dur, type, vol, slideTo){
+  var c = audioCtx();
+  if(!c){ return; }
+  var t = c.currentTime + start, o = c.createOscillator(), g = c.createGain();
+  o.type = type || 'sine';
+  o.frequency.setValueAtTime(freq, t);
+  if(slideTo){ o.frequency.exponentialRampToValueAtTime(slideTo, t + dur); }
+  g.gain.setValueAtTime(0.0001, t);
+  g.gain.exponentialRampToValueAtTime(vol || 0.15, t + 0.01);
+  g.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+  o.connect(g);
+  g.connect(c.destination);
+  o.start(t);
+  o.stop(t + dur + 0.02);
+}
+var sfx = {
+  flip: function(){ tone(620, 0, 0.09, 'sine', 0.2, 180); tone(1200, 0, 0.03, 'square', 0.04, 400); },
+  msg: function(){ tone(660, 0, 0.07, 'sine', 0.12); tone(880, 0.07, 0.09, 'sine', 0.1); },
+  quick: function(kind){
+    if(kind === 'yes'){ tone(523, 0, 0.1, 'triangle', 0.16); tone(784, 0.09, 0.16, 'triangle', 0.16); }
+    else if(kind === 'no'){ tone(330, 0, 0.12, 'sawtooth', 0.07); tone(220, 0.1, 0.2, 'sawtooth', 0.07); }
+    else { tone(600, 0, 0.08, 'square', 0.05, 900); tone(900, 0.09, 0.08, 'square', 0.05, 600); tone(700, 0.18, 0.12, 'square', 0.05, 1000); }
+  },
+  win: function(){
+    [523.25, 659.25, 783.99, 1046.5].forEach(function(f, i){ tone(f, i * 0.12, i === 3 ? 0.5 : 0.14, 'triangle', 0.18); });
+    tone(1318.5, 0.5, 0.4, 'triangle', 0.12);
+  }
+};
+function celebrate(){
+  if(typeof confetti !== 'function'){ return; }
+  var colors = ['#ffd700', '#ff4d6d', '#4de1d2', '#7be495', '#ffffff'];
+  if(window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches){
+    confetti({particleCount:60, spread:70, origin:{y:0.6}, colors:colors});
+    return;
+  }
+  var end = Date.now() + 2500;
+  (function frame(){
+    confetti({particleCount:4, angle:60, spread:60, origin:{x:0, y:0.7}, colors:colors});
+    confetti({particleCount:4, angle:120, spread:60, origin:{x:1, y:0.7}, colors:colors});
+    confetti({particleCount:3, angle:270, spread:80, startVelocity:25, gravity:0.9, origin:{x:Math.random(), y:0}, colors:colors});
+    if(Date.now() < end){ requestAnimationFrame(frame); }
+  })();
+}
+var QUICK = {
+  yes:   {label:'SÌ', cls:'ans-yes'},
+  no:    {label:'NO', cls:'ans-no'},
+  jolly: {label:'🤫 JOLLY', cls:'ans-jolly'}
+};
+
 function buildBoard(){
   var b = $('board');
   b.textContent = '';
@@ -445,11 +608,22 @@ function buildBoard(){
     c.tabIndex = 0;
     c.setAttribute('role', 'button');
     c.dataset.i = i;
-    c.appendChild(makeFace(ch));
+    var inner = document.createElement('div');
+    inner.className = 'card-inner';
+    var front = document.createElement('div');
+    front.className = 'card-front';
+    front.appendChild(makeFace(ch));
     var n = document.createElement('div');
     n.className = 'nm';
     n.textContent = ch.name;
-    c.appendChild(n);
+    front.appendChild(n);
+    var back = document.createElement('div');
+    back.className = 'card-back';
+    back.setAttribute('aria-hidden', 'true');
+    back.textContent = '?';
+    inner.appendChild(front);
+    inner.appendChild(back);
+    c.appendChild(inner);
     c.addEventListener('click', function(){ onCard(i); });
     c.addEventListener('keydown', function(e){
       if(e.key === 'Enter' || e.key === ' '){ e.preventDefault(); onCard(i); }
@@ -457,6 +631,57 @@ function buildBoard(){
     b.appendChild(c);
   });
 }
+function fitBoard(){
+  var b = $('board');
+  var n = b.children.length;
+  if(!n || $('game').classList.contains('hidden')){ return; }
+  var cs = getComputedStyle(b);
+  var gap = parseFloat(cs.columnGap) || 10;
+  if(window.matchMedia('(min-width:901px)').matches){
+    var W = b.clientWidth - parseFloat(cs.paddingLeft) - parseFloat(cs.paddingRight);
+    var H = b.clientHeight - parseFloat(cs.paddingTop) - parseFloat(cs.paddingBottom);
+    var best = null;
+    for(var c = 1; c <= n; c++){
+      var r = Math.ceil(n / c);
+      var size = Math.min((W - gap * (c - 1)) / c, ((H - gap * (r - 1)) / r) / 1.2);
+      if(!best || size > best.size){ best = {c:c, r:r, size:size}; }
+    }
+    var MINSIZE = 56;
+    if(best.size >= MINSIZE){
+      var cell = Math.floor(best.size);
+      b.style.gridTemplateColumns = 'repeat(' + best.c + ', ' + cell + 'px)';
+      b.style.gridTemplateRows = 'repeat(' + best.r + ', ' + Math.floor(cell * 1.2) + 'px)';
+      b.style.gridAutoRows = '';
+      b.style.justifyContent = 'center';
+      b.style.alignContent = 'center';
+      b.style.overflowY = 'hidden';
+    } else {
+      var cols = Math.max(1, Math.floor((W + gap) / (MINSIZE + gap)));
+      b.style.gridTemplateColumns = 'repeat(' + cols + ', minmax(0, 1fr))';
+      b.style.gridTemplateRows = 'none';
+      b.style.gridAutoRows = Math.round(MINSIZE * 1.25) + 'px';
+      b.style.justifyContent = 'center';
+      b.style.alignContent = 'start';
+      b.style.overflowY = 'auto';
+    }
+  } else {
+    b.style.gridTemplateColumns = '';
+    b.style.gridTemplateRows = '';
+    b.style.gridAutoRows = '';
+    b.style.justifyContent = '';
+    b.style.alignContent = '';
+    b.style.overflowY = '';
+  }
+  b.style.setProperty('--cw', Math.round(b.children[0].offsetWidth) + 'px');
+}
+var fitQueued = false;
+function scheduleFit(){
+  if(fitQueued){ return; }
+  fitQueued = true;
+  requestAnimationFrame(function(){ fitQueued = false; fitBoard(); });
+}
+window.addEventListener('resize', scheduleFit);
+if(window.ResizeObserver){ new ResizeObserver(scheduleFit).observe($('board')); }
 function cardEl(i){ return $('board').children[i]; }
 
 function onCard(i){
@@ -469,6 +694,7 @@ function onCard(i){
   var el = cardEl(i);
   if(eliminated[i]){ delete eliminated[i]; el.classList.remove('out'); }
   else { eliminated[i] = true; el.classList.add('out'); }
+  sfx.flip();
 }
 var secretHidden = false;
 function refreshSecretName(){
@@ -532,9 +758,12 @@ function pushRoster(){
   broadcast({t:'roster', roster:roster});
 }
 
-function createRoom(cat){
+function createRoom(cat, useAll){
   setupMsg('');
-  CHARACTERS = buildCharacters(cat);
+  var full = buildCharacters(cat);
+  useAllChars = !!useAll;
+  drawn = !useAllChars && full.length > MAX_CARDS;
+  CHARACTERS = drawn ? shuffle(full).slice(0, MAX_CARDS) : full;
   catName = cat.name;
   myName = nameVal();
   isHost = true;
@@ -553,6 +782,7 @@ function startHost(attempt, opts){
     roster[1] = {name:myName, ready:false};
     enterGame();
     log('Stanza creata. Categoria: ' + catName + '. Condividi il codice con gli altri giocatori.', 'sys');
+    log(modeText(), 'sys');
     log(myName + ' connesso', 'sys');
   });
   peer.on('connection', onIncoming);
@@ -593,7 +823,7 @@ function onHostData(conn, d){
     var taken = Object.keys(roster).some(function(k){ return roster[k].name.toLowerCase() === nm.toLowerCase(); });
     if(taken){ nm = nm.slice(0, 17) + ' ' + n; }
     roster[n] = {name:nm, ready:false};
-    conn.send({t:'welcome', n:n, code:roomCode, chars:CHARACTERS, category:catName, name:roster[n].name});
+    conn.send({t:'welcome', n:n, code:roomCode, chars:CHARACTERS, category:catName, all:useAllChars, drawn:drawn, name:roster[n].name});
     hostSys(roster[n].name + ' connesso');
     pushRoster();
     return;
@@ -649,10 +879,13 @@ function handle(d){
       if(d.name){ myName = d.name; }
       if(d.chars && d.chars.length){ CHARACTERS = d.chars; }
       if(d.category){ catName = d.category; }
+      useAllChars = !!d.all;
+      drawn = !!d.drawn;
       roomCode = d.code || roomCode;
       clearTimeout(joinTimer);
       enterGame();
       log('Connesso alla stanza come ' + myName + '. Categoria: ' + catName, 'sys');
+      log(modeText(), 'sys');
       break;
     case 'full':
       setupMsg('Stanza piena: massimo 3 giocatori.');
@@ -666,6 +899,13 @@ function handle(d){
       break;
     case 'chat':
       log(pname(d.from) + ': ' + d.text, 'chat');
+      sfx.msg();
+      break;
+    case 'quick':
+      var q = QUICK[d.kind];
+      if(!q){ break; }
+      log(pname(d.from) + ': ', 'chat', {text:q.label, cls:q.cls});
+      sfx.quick(d.kind);
       break;
     case 'ready':
       if(roster[d.from]){ roster[d.from].ready = true; }
@@ -685,7 +925,11 @@ function handle(d){
       break;
     case 'result':
       var cn = CHARACTERS[d.card] ? CHARACTERS[d.card].name : '?';
-      if(d.ok){ log(pname(d.guesser) + ' ha INDOVINATO! La carta di ' + pname(d.target) + ' era ' + cn + '.', 'win'); }
+      if(d.ok){
+        log(pname(d.guesser) + ' ha INDOVINATO! La carta di ' + pname(d.target) + ' era ' + cn + '.', 'win');
+        celebrate();
+        sfx.win();
+      }
       else { log(pname(d.guesser) + ' ha sbagliato: la carta di ' + pname(d.target) + ' non è ' + cn + '.', 'err'); }
       break;
   }
@@ -771,6 +1015,8 @@ function enterGame(){
   refreshCode();
   buildBoard();
   renderRoster();
+  fitBoard();
+  scheduleFit();
 }
 
 /* ---------- Selezione categoria ---------- */
@@ -796,7 +1042,7 @@ function openCategories(){
     more.textContent = chars.length > 3 ? '+' + (chars.length - 3) : '+';
     pv.appendChild(more);
     b.appendChild(pv);
-    b.addEventListener('click', function(){ closeCategories(false); createRoom(cat); });
+    b.addEventListener('click', function(){ closeCategories(false); createRoom(cat, $('allToggle').checked); });
     grid.appendChild(b);
   });
   $('catModal').classList.remove('hidden');
@@ -808,8 +1054,28 @@ function closeCategories(refocus){
 }
 $('catCancel').addEventListener('click', function(){ closeCategories(true); });
 $('catModal').addEventListener('click', function(e){ if(e.target === $('catModal')){ closeCategories(true); } });
+var lastLink = null;
+function openInfo(id, link){
+  lastLink = link;
+  $(id).classList.remove('hidden');
+  $(id).querySelector('.modal-x').focus();
+}
+function closeInfo(id){
+  $(id).classList.add('hidden');
+  if(lastLink){ lastLink.focus(); }
+}
+['rules', 'credits'].forEach(function(k){
+  var modal = $(k + 'Modal'), link = $(k + 'Link');
+  link.addEventListener('click', function(e){ e.preventDefault(); openInfo(k + 'Modal', link); });
+  modal.querySelector('.modal-x').addEventListener('click', function(){ closeInfo(k + 'Modal'); });
+  modal.addEventListener('click', function(e){ if(e.target === modal){ closeInfo(k + 'Modal'); } });
+});
 document.addEventListener('keydown', function(e){
-  if(e.key === 'Escape' && !$('catModal').classList.contains('hidden')){ closeCategories(true); }
+  if(e.key !== 'Escape'){ return; }
+  if(!$('catModal').classList.contains('hidden')){ closeCategories(true); }
+  ['rulesModal', 'creditsModal'].forEach(function(id){
+    if(!$(id).classList.contains('hidden')){ closeInfo(id); }
+  });
 });
 
 /* ---------- Eventi ---------- */
@@ -850,6 +1116,23 @@ $('hideBtn').addEventListener('click', function(){ codeHidden = !codeHidden; ref
     h.appendChild(sp);
   }
 })();
+Array.prototype.forEach.call(document.querySelectorAll('#quickReplies .btn-quick'), function(btn){
+  btn.addEventListener('click', function(){ post({t:'quick', kind:btn.getAttribute('data-kind')}); });
+});
+function refreshSound(){
+  var b = $('soundBtn');
+  b.textContent = soundOn ? '🔊' : '🔇';
+  b.setAttribute('aria-pressed', soundOn ? 'true' : 'false');
+  b.setAttribute('aria-label', soundOn ? 'Audio attivo' : 'Audio disattivato');
+}
+$('soundBtn').addEventListener('click', function(){
+  soundOn = !soundOn;
+  try{ localStorage.setItem('indovinachi-sound', soundOn ? 'on' : 'off'); }catch(e){}
+  refreshSound();
+  if(soundOn){ sfx.msg(); }
+});
+refreshSound();
+document.addEventListener('pointerdown', function(){ audioCtx(); }, {once:true});
 $('chatForm').addEventListener('submit', function(e){
   e.preventDefault();
   var v = $('chatIn').value.trim();
@@ -861,11 +1144,3 @@ $('chatForm').addEventListener('submit', function(e){
 </script>
 </body>
 </html>
-<!-- 
-1. Solo domande estetiche (in teoria, a noi non ce ne frega).
-2. Si può rispondere solo con Sì o NO.
-3. Abbiamo un JOLLY "Mutismo selettivo": ad una domanda possiamo evitare di rispondere.
-4. Non si può ripetere una domanda già fatta.
-
-$f = Get-ChildItem -File | Where-Object { $_.Extension -match '^\.(jpg|jpeg|png|gif|webp)$' } | Sort-Object Name; (($f | ForEach-Object { "'" + ($_.Name -replace "'", "\'") + "'" }) -join ', ') | Set-Clipboard
--->

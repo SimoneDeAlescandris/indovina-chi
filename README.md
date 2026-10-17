@@ -27,4 +27,4 @@ Questo progetto è distribuito sotto licenza **MIT**. Consulta il file `LICENSE`
 
 ### Disclaimer e Note Legali
 - *Indovina Chi?* è un marchio registrato di Hasbro, Inc. Questo progetto è una rielaborazione amatoriale senza scopo di lucro, creata a fini educativi e ricreativi.
-- I loghi, i nomi e le immagini dei personaggi, Pokémon o YouTuber appartengono ai rispettivi proprietari dei diritti d'autore.
+- I loghi, i nomi e le immagini dei personaggi appartengono ai rispettivi proprietari dei diritti d'autore.
