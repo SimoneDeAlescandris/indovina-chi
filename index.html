@@ -151,6 +151,25 @@ body:not(.in-game) footer{margin-top:0;padding:24px 16px 12px;align-self:stretch
 #soundBtn{min-width:34px}
 #chatForm{display:flex;flex-direction:column;gap:6px;margin-top:8px}
 
+/* Turno, rivincita, selettore avversario */
+.rosterbar{flex:none;display:flex;align-items:center;flex-wrap:wrap;gap:6px 12px;margin-bottom:10px}
+.rosterbar #roster{margin-bottom:0}
+#turnCtl{display:flex;align-items:center;gap:6px}
+.badge{font-size:.78rem;font-weight:700;padding:1px 10px;border:2px solid var(--line);border-radius:999px;background:var(--panel2);color:var(--muted);white-space:nowrap}
+.badge.mine{background:var(--gold);color:var(--ink);animation:pulseGold 1.4s ease-in-out infinite}
+#passBtn,#rematchBtn{min-height:30px;padding:2px 12px;font-size:.78rem;border-width:2px;box-shadow:0 2px 0 var(--goldd)}
+#passBtn:disabled{box-shadow:0 2px 0 #000}
+.chip.active{border-color:var(--gold);color:var(--gold);background:#2a2410;box-shadow:0 0 0 2px rgba(255,215,0,.3)}
+.chip.offline{opacity:.5}
+.chip.target{outline:2px dashed var(--gold);outline-offset:2px}
+#target.target-active{border-color:var(--gold);animation:pulseGold 1.4s ease-in-out infinite}
+@keyframes pulseGold{0%,100%{box-shadow:0 0 0 2px rgba(255,215,0,.15)}50%{box-shadow:0 0 0 5px rgba(255,215,0,.5)}}
+.end-box{max-width:420px;text-align:center}
+.end-box h2{margin-bottom:12px}
+.end-box p{margin:0 0 14px;line-height:1.4}
+.end-card .face{width:110px;height:110px;margin:0 auto}
+.end-card .nm{margin:6px 0 16px;font-weight:700}
+#endWait{color:var(--muted);font-size:.9rem;margin:0}
 @media (max-width:900px){
   #game{grid-template-columns:1fr;grid-template-rows:auto;height:auto;min-height:100vh}
   .play{height:auto}
@@ -163,6 +182,9 @@ body:not(.in-game) footer{margin-top:0;padding:24px 16px 12px;align-self:stretch
 @media (max-width:560px){
   #game{padding:50px 10px 10px}
   #roster{gap:4px;margin-bottom:6px}
+  .rosterbar{gap:4px 8px;margin-bottom:6px}
+  .badge{font-size:.7rem;padding:0 8px}
+  #passBtn,#rematchBtn{min-height:28px;font-size:.72rem;padding:1px 8px}
   .chip{padding:0 8px;font-size:.72rem;border-width:2px}
   .top{grid-template-columns:96px 1fr;gap:8px;align-items:start;margin-bottom:6px}
   #secretBox{width:96px;padding:5px;border-width:2px;border-radius:10px}
@@ -178,7 +200,7 @@ body:not(.in-game) footer{margin-top:0;padding:24px 16px 12px;align-self:stretch
 }
 @media (min-width:901px) and (max-width:1500px){.roombar>span:first-child{display:none}}
 @media (min-width:901px){html:has(body.in-game),body.in-game{overflow:hidden;height:100vh;height:100dvh}}
-@media (prefers-reduced-motion:reduce){.card,header img,header h1,button,.switch,.switch::after,.card-inner{transition:none}.modal-box{animation:none}}
+@media (prefers-reduced-motion:reduce){.card,header img,header h1,button,.switch,.switch::after,.card-inner{transition:none}.modal-box,.badge.mine,#target.target-active{animation:none}}
 </style>
 </head>
 <body>
@@ -206,7 +228,14 @@ body:not(.in-game) footer{margin-top:0;padding:24px 16px 12px;align-self:stretch
 
   <section id="game" class="hidden" aria-label="Partita">
     <div class="play">
-      <div id="roster"></div>
+      <div class="rosterbar">
+        <div id="roster"></div>
+        <div id="turnCtl" class="hidden">
+          <span id="turnBadge" class="badge" aria-live="polite"></span>
+          <button id="passBtn" class="hidden" type="button" disabled>Passa turno</button>
+          <button id="rematchBtn" class="hidden" type="button">Nuova partita</button>
+        </div>
+      </div>
       <div class="top">
         <div id="secretBox" aria-live="polite">
           <small>La tua carta segreta (solo tu la vedi)</small>
@@ -244,6 +273,7 @@ body:not(.in-game) footer{margin-top:0;padding:24px 16px 12px;align-self:stretch
         <span id="roomCode" role="button" tabindex="0" title="Clicca per copiare il codice">-----</span>
         <button id="hideBtn" class="alt" type="button">Nascondi codice</button>
         <button id="soundBtn" class="alt" type="button" aria-pressed="true" aria-label="Audio attivo" title="Audio">🔊</button>
+        <button id="leaveBtn" class="alt" type="button" title="Esci dalla stanza">Esci</button>
       </div>
     </aside>
   </section>
@@ -259,6 +289,17 @@ body:not(.in-game) footer{margin-top:0;padding:24px 16px 12px;align-self:stretch
     </label>
     <div id="catGrid" class="cat-grid"></div>
     <button id="catCancel" class="alt" type="button">Annulla</button>
+  </div>
+</div>
+
+<div id="endModal" class="modal hidden">
+  <div class="modal-box info-box end-box" role="dialog" aria-modal="true" aria-labelledby="endTitle">
+    <button class="modal-x" type="button" aria-label="Chiudi">&#10005;</button>
+    <h2 id="endTitle"></h2>
+    <p id="endText"></p>
+    <div id="endCard" class="end-card"></div>
+    <button id="endRematch" class="hidden" type="button">Nuova partita</button>
+    <p id="endWait" class="hidden"></p>
   </div>
 </div>
 
@@ -471,11 +512,21 @@ function watchIce(conn, label){
   });
   conn.on('error', function(err){ dbgw(label + ': errore canale dati', err); });
 }
+function tryReconnectSignal(p, k){
+  if(p.destroyed || !p.disconnected || leaving){ return; }
+  dbg('Riconnessione al server di segnalazione, tentativo', k + 1);
+  try{ p.reconnect(); }catch(e){}
+  setTimeout(function(){
+    if(!p.destroyed && p.disconnected && k < 30){ tryReconnectSignal(p, k + 1); }
+  }, 3000 + Math.min(k, 5) * 1000);
+}
 function watchPeer(p){
-  p.on('open', function(id){ dbg('Connesso al server di segnalazione PeerJS, id =', id); });
+  var told = false;
+  p.on('open', function(id){ told = false; dbg('Connesso al server di segnalazione PeerJS, id =', id); });
   p.on('disconnected', function(){
     dbgw('Disconnesso dal server di segnalazione PeerJS.');
-    if(!p.destroyed){ dbg('Provo a riconnettermi...'); p.reconnect(); }
+    if(entered && isHost && !told && !leaving && !p.destroyed){ told = true; log('Riconnessione in corso...', 'sys'); }
+    tryReconnectSignal(p, 0);
   });
   p.on('close', function(){ dbg('Peer chiuso.'); });
 }
@@ -485,6 +536,16 @@ var peer = null, isHost = false, myN = 0, myName = '', roomCode = '';
 var conns = [], hostConn = null, roster = {};
 var secret = null, locked = false, guessMode = false, entered = false, joinTimer = null;
 var eliminated = {};
+
+/* Stato di partita, sessione e riconnessione */
+var SESSION_KEY = 'indovinachi-session', SESSION_TTL = 3 * 3600 * 1000;
+var GRACE_MS = 120000, HB_MS = 8000, STALE_MS = 24000;
+var gid = 0, phase = 'lobby', turnN = 0, lastResult = null;
+var tokens = {}, myToken = '', curCat = null, graceTimers = {};
+var reconnecting = false, retryTimer = null, retryCount = 0, attemptSeq = 0;
+var leaving = false, closedByHost = false, resumeData = null, outbox = [];
+var lastRx = 0, hbTimer = null, saveTimer = null;
+var RELAY = {chat:1, quick:1, ready:1, unready:1, guess:1, result:1, pass:1};
 
 function $(id){ return document.getElementById(id); }
 
@@ -573,6 +634,7 @@ var sfx = {
     else if(kind === 'no'){ tone(330, 0, 0.12, 'sawtooth', 0.07); tone(220, 0.1, 0.2, 'sawtooth', 0.07); }
     else { tone(600, 0, 0.08, 'square', 0.05, 900); tone(900, 0.09, 0.08, 'square', 0.05, 600); tone(700, 0.18, 0.12, 'square', 0.05, 1000); }
   },
+  turn: function(){ tone(784, 0, 0.08, 'triangle', 0.14); tone(1175, 0.08, 0.14, 'triangle', 0.12); },
   win: function(){
     [523.25, 659.25, 783.99, 1046.5].forEach(function(f, i){ tone(f, i * 0.12, i === 3 ? 0.5 : 0.14, 'triangle', 0.18); });
     tone(1318.5, 0.5, 0.4, 'triangle', 0.12);
@@ -596,7 +658,7 @@ function celebrate(){
 var QUICK = {
   yes:   {label:'SÌ', cls:'ans-yes'},
   no:    {label:'NO', cls:'ans-no'},
-  jolly: {label:'🤫 JOLLY', cls:'ans-jolly'}
+  jolly: {label:'JOLLY', cls:'ans-jolly'}
 };
 
 function buildBoard(){
@@ -695,6 +757,7 @@ function onCard(i){
   if(eliminated[i]){ delete eliminated[i]; el.classList.remove('out'); }
   else { eliminated[i] = true; el.classList.add('out'); }
   sfx.flip();
+  saveSoon();
 }
 var secretHidden = false;
 function refreshSecretName(){
@@ -706,6 +769,7 @@ function refreshSecretMask(){
   $('secretBox').classList.toggle('masked', secretHidden);
   $('hideSecretBtn').textContent = secretHidden ? 'Mostra carta segreta' : 'Nascondi carta segreta';
   refreshSecretName();
+  saveSoon();
   if(secret !== null && locked){
     var el = cardEl(secret);
     if(el){
@@ -728,6 +792,7 @@ function updateSecret(){
     q.textContent = '?';
     box.appendChild(q);
     refreshSecretName();
+    updateControls();
     return;
   }
   var ch = CHARACTERS[secret];
@@ -736,7 +801,7 @@ function updateSecret(){
   nf.id = 'secretFace';
   refreshSecretName();
   cardEl(secret).classList.add(locked ? 'mine' : 'pick');
-  $('confirmBtn').disabled = locked;
+  updateControls();
 }
 
 /* ---------- Rete ---------- */
@@ -747,7 +812,11 @@ function post(msg){
   msg.from = myN;
   if(isHost){ broadcast(msg); }
   else if(hostConn && hostConn.open){ hostConn.send(msg); }
+  else if(outbox.length < 50){ outbox.push(msg); }
   handle(msg);
+}
+function flushOutbox(){
+  while(outbox.length && hostConn && hostConn.open){ hostConn.send(outbox.shift()); }
 }
 function hostSys(text){
   log(text, 'sys');
@@ -765,70 +834,198 @@ function createRoom(cat, useAll){
   drawn = !useAllChars && full.length > MAX_CARDS;
   CHARACTERS = drawn ? shuffle(full).slice(0, MAX_CARDS) : full;
   catName = cat.name;
+  curCat = cat;
+  gid = 1; phase = 'lobby'; turnN = 0; lastResult = null; tokens = {}; roster = {};
+  leaving = false; closedByHost = false;
   myName = nameVal();
   isHost = true;
   myN = 1;
   tryCreate(0);
 }
 function tryCreate(attempt){
-  getPeerOpts(function(opts){ startHost(attempt, opts); });
+  getPeerOpts(function(opts){ startHost(attempt, opts, null); });
 }
-function startHost(attempt, opts){
-  var code = randCode();
-  peer = new Peer(PREFIX + code, opts);
-  watchPeer(peer);
-  peer.on('open', function(){
+function findCat(name){
+  for(var i = 0; i < CATEGORIES.length; i++){ if(CATEGORIES[i].name === name){ return CATEGORIES[i]; } }
+  return null;
+}
+var SIGNAL_ERRORS = ['network', 'server-error', 'socket-error', 'socket-closed', 'disconnected'];
+function startHost(attempt, opts, fixed){
+  var code = fixed || randCode();
+  var p = new Peer(PREFIX + code, opts);
+  var opened = false;
+  peer = p;
+  watchPeer(p);
+  p.on('open', function(){
+    if(opened){ if(entered){ log('Connessione ripristinata', 'sys'); } return; }
+    opened = true;
     roomCode = code;
+    if(fixed){ finishHostResume(); return; }
     roster[1] = {name:myName, ready:false};
     enterGame();
     log('Stanza creata. Categoria: ' + catName + '. Condividi il codice con gli altri giocatori.', 'sys');
     log(modeText(), 'sys');
     log(myName + ' connesso', 'sys');
   });
-  peer.on('connection', onIncoming);
-  peer.on('error', function(e){
+  p.on('connection', onIncoming);
+  p.on('error', function(e){
     dbgw('Errore peer (host):', e.type, e);
-    if(e.type === 'unavailable-id' && attempt < 4){ peer.destroy(); tryCreate(attempt + 1); }
-    else if(entered){ log('Errore di rete: ' + e.type, 'err'); }
-    else { setupMsg('Errore di rete: ' + e.type + '. Controlla la connessione e riprova.'); }
+    if(e.type === 'unavailable-id'){
+      if(fixed && attempt < 15){
+        try{ p.destroy(); }catch(x){}
+        setTimeout(function(){ startHost(attempt + 1, opts, fixed); }, 4000);
+        return;
+      }
+      if(!fixed && attempt < 4){ p.destroy(); tryCreate(attempt + 1); return; }
+    }
+    if(entered){
+      if(SIGNAL_ERRORS.indexOf(e.type) < 0){ log('Errore di rete: ' + e.type, 'err'); }
+    } else {
+      if(fixed){ clearSession(); }
+      setupMsg('Errore di rete: ' + e.type + '. Controlla la connessione e riprova.');
+    }
   });
+}
+function resumeHost(sess){
+  isHost = true; myN = 1; myName = sess.name; roomCode = sess.code;
+  CHARACTERS = sess.chars || []; catName = sess.cat || ''; useAllChars = !!sess.all; drawn = !!sess.drawn;
+  gid = sess.gid || 1; phase = sess.phase || 'lobby'; turnN = sess.turn || 0; lastResult = sess.res || null;
+  roster = sess.roster || {}; tokens = sess.tokens || {}; curCat = findCat(catName);
+  resumeData = sess;
+  setupMsg('Ripristino della stanza in corso...');
+  getPeerOpts(function(opts){ startHost(0, opts, sess.code); });
+}
+function finishHostResume(){
+  var sess = resumeData;
+  resumeData = null;
+  if(!CHARACTERS.length || !roster[1]){ clearSession(); setupMsg('Impossibile ripristinare la stanza.'); return; }
+  Object.keys(roster).forEach(function(k){ if(Number(k) !== 1){ markOffline(Number(k), true); } });
+  enterGame();
+  restoreLocal(sess);
+  log('Stanza ripristinata. Attendo la riconnessione degli altri giocatori...', 'sys');
+  if(phase === 'over' && lastResult){ showEnd(lastResult); }
+}
+
+function connBySeat(n){
+  for(var i = 0; i < conns.length; i++){ if(conns[i].n === n){ return conns[i]; } }
+  return null;
+}
+function activeIds(){
+  return Object.keys(roster).map(Number).filter(function(n){ return !roster[n].offline; }).sort(function(a, b){ return a - b; });
+}
+function nextOf(from){
+  var ids = activeIds().filter(function(n){ return roster[n].ready; });
+  if(!ids.length){ return 0; }
+  for(var i = 0; i < ids.length; i++){ if(ids[i] > from){ return ids[i]; } }
+  return ids[0];
+}
+function advanceTurn(from){
+  if(!isHost){ return; }
+  turnN = nextOf(from);
+  var msg = {t:'turn', n:turnN, from:1};
+  broadcast(msg);
+  handle(msg);
+}
+function maybeStart(){
+  if(!isHost || phase !== 'lobby'){ return; }
+  var ids = activeIds();
+  if(ids.length < 2){ return; }
+  for(var i = 0; i < ids.length; i++){ if(!roster[ids[i]].ready){ return; } }
+  var msg = {t:'start', turn:ids[Math.floor(Math.random() * ids.length)], from:1};
+  broadcast(msg);
+  handle(msg);
+}
+function markOffline(n, quiet){
+  if(!roster[n]){ return; }
+  roster[n].offline = true;
+  clearTimeout(graceTimers[n]);
+  graceTimers[n] = setTimeout(function(){ dropSeat(n, 'è uscito dalla stanza'); }, GRACE_MS);
+  if(!quiet){
+    hostSys(roster[n].name + ' si è disconnesso. Attendo la riconnessione...');
+    if(phase === 'playing' && turnN === n){ advanceTurn(n); }
+  }
+  pushRoster();
+}
+function dropSeat(n, text){
+  var p = roster[n];
+  if(!p){ return; }
+  clearTimeout(graceTimers[n]);
+  delete graceTimers[n];
+  var c = connBySeat(n);
+  if(c){
+    c.n = 0;
+    conns.splice(conns.indexOf(c), 1);
+    try{ c.close(); }catch(e){}
+  }
+  var nm = p.name;
+  delete roster[n];
+  delete tokens[n];
+  hostSys(nm + ' ' + text);
+  if(phase === 'playing' && turnN === n){ advanceTurn(n); }
+  pushRoster();
+  maybeStart();
 }
 function onIncoming(conn){
   dbg('Connessione in ingresso da', conn.peer);
   watchIce(conn, 'host');
-  conn.on('data', function(d){ onHostData(conn, d); });
+  conn.on('data', function(d){ conn.lastRx = Date.now(); onHostData(conn, d); });
   conn.on('close', function(){
     var i = conns.indexOf(conn);
     if(i < 0){ return; }
     conns.splice(i, 1);
-    var n = conn.n;
-    var nm = roster[n] ? roster[n].name : '';
-    delete roster[n];
-    hostSys((nm || 'Giocatore ' + n) + ' disconnesso');
-    pushRoster();
+    if(conn.n && roster[conn.n]){ markOffline(conn.n, false); }
   });
 }
+function welcomeMsg(n, rejoined){
+  return {t:'welcome', n:n, code:roomCode, chars:CHARACTERS, category:catName, all:useAllChars, drawn:drawn,
+    name:roster[n].name, token:tokens[n], gid:gid, phase:phase, turn:turnN, res:lastResult, rejoined:!!rejoined};
+}
 function onHostData(conn, d){
+  if(!d || typeof d !== 'object'){ return; }
+  if(d.t === 'hb'){ return; }
   if(d.t === 'hello'){
-    if(conns.length >= 2){
-      conn.send({t:'full'});
-      setTimeout(function(){ conn.close(); }, 400);
+    var seat = Number(d.n);
+    if(d.rejoin && seat > 1 && roster[seat] && tokens[seat] && d.token === tokens[seat]){
+      var old = connBySeat(seat);
+      if(old && old !== conn){
+        old.n = 0;
+        conns.splice(conns.indexOf(old), 1);
+        try{ old.close(); }catch(e){}
+      }
+      clearTimeout(graceTimers[seat]);
+      delete graceTimers[seat];
+      conn.n = seat;
+      conn.lastRx = Date.now();
+      conns.push(conn);
+      roster[seat].offline = false;
+      conn.send(welcomeMsg(seat, true));
+      hostSys(roster[seat].name + ' è di nuovo online');
+      pushRoster();
       return;
     }
-    var n = 2;
-    if(conns.some(function(c){ return c.n === 2; })){ n = 3; }
+    var n = !roster[2] ? 2 : (!roster[3] ? 3 : 0);
+    if(!n){
+      conn.send({t:'full'});
+      setTimeout(function(){ try{ conn.close(); }catch(e){} }, 400);
+      return;
+    }
     conn.n = n;
+    conn.lastRx = Date.now();
     conns.push(conn);
     var nm = String(d.name || 'Giocatore').slice(0, 20);
     var taken = Object.keys(roster).some(function(k){ return roster[k].name.toLowerCase() === nm.toLowerCase(); });
     if(taken){ nm = nm.slice(0, 17) + ' ' + n; }
     roster[n] = {name:nm, ready:false};
-    conn.send({t:'welcome', n:n, code:roomCode, chars:CHARACTERS, category:catName, all:useAllChars, drawn:drawn, name:roster[n].name});
+    tokens[n] = Math.random().toString(36).slice(2) + Date.now().toString(36);
+    conn.send(welcomeMsg(n, false));
     hostSys(roster[n].name + ' connesso');
     pushRoster();
+    saveSoon();
     return;
   }
   if(!conn.n){ return; }
+  if(d.t === 'leave'){ dropSeat(conn.n, 'è uscito dalla stanza'); return; }
+  if(!RELAY[d.t]){ return; }
   d.from = conn.n;
   handle(d);
   conns.forEach(function(c){ if(c !== conn && c.open){ c.send(d); } });
@@ -841,58 +1038,185 @@ function joinRoom(){
   myName = nameVal();
   isHost = false;
   roomCode = code;
+  myN = 0; myToken = ''; gid = 0; resumeData = null;
+  leaving = false; closedByHost = false; reconnecting = false;
   setupMsg('Connessione in corso...');
-  getPeerOpts(function(opts){ startGuest(code, opts); });
+  getPeerOpts(function(opts){ startGuest(code, opts, 'fresh'); });
 }
-function startGuest(code, opts){
-  peer = new Peer(undefined, opts);
-  watchPeer(peer);
-  peer.on('open', function(){
-    dbg('Provo a connettermi alla stanza', code);
-    hostConn = peer.connect(PREFIX + code, {reliable:true});
-    watchIce(hostConn, 'guest');
-    hostConn.on('open', function(){ hostConn.send({t:'hello', name:myName}); });
-    hostConn.on('data', handle);
-    hostConn.on('close', function(){
-      if(entered){ log('Connessione con l\'host persa. La partita è terminata.', 'err'); }
+function resumeGuest(sess){
+  isHost = false; myName = sess.name; roomCode = sess.code; myN = sess.n || 0; myToken = sess.token || '';
+  gid = sess.gid || 0; catName = sess.cat || '';
+  resumeData = sess;
+  setupMsg('Ripresa della partita in corso...');
+  startReconnect(true);
+}
+function startGuest(code, opts, mode){
+  var id = ++attemptSeq, failed = false, opened = false;
+  function fail(msg){
+    if(failed || id !== attemptSeq){ return; }
+    failed = true;
+    clearTimeout(joinTimer);
+    if(mode === 'fresh'){ setupMsg(msg); } else { scheduleRetry(); }
+  }
+  hostConn = null;
+  if(peer && !peer.destroyed){ try{ peer.destroy(); }catch(e){} }
+  var p = new Peer(undefined, opts);
+  peer = p;
+  watchPeer(p);
+  p.on('open', function(){
+    if(opened || id !== attemptSeq){ return; }
+    opened = true;
+    dbg('Provo a connettermi alla stanza', code, mode === 'rejoin' ? '(riconnessione)' : '');
+    var c = p.connect(PREFIX + code, {reliable:true});
+    hostConn = c;
+    watchIce(c, 'guest');
+    c.on('open', function(){
+      lastRx = Date.now();
+      c.send({t:'hello', name:myName, rejoin:mode === 'rejoin', n:myN, token:myToken});
+    });
+    c.on('data', function(d){
+      if(c !== hostConn){ return; }
+      lastRx = Date.now();
+      handle(d);
+    });
+    c.on('close', function(){
+      if(c !== hostConn){ return; }
+      if(entered && !reconnecting){ onHostLost(); }
+      else if(mode === 'rejoin'){ fail('Connessione chiusa.'); }
     });
     clearTimeout(joinTimer);
     joinTimer = setTimeout(function(){
-      if(!entered){
-        dbgw('Timeout (20s): il canale dati con l\'host non si è aperto. Controlla gli stati ICE sopra.');
-        setupMsg('Stanza non raggiungibile. Controlla il codice o la rete (dettagli nella console del browser).');
-      }
+      dbgw('Timeout (20s): il canale dati con l\'host non si è aperto. Controlla gli stati ICE sopra.');
+      fail('Stanza non raggiungibile. Controlla il codice o la rete (dettagli nella console del browser).');
     }, 20000);
   });
-  peer.on('error', function(e){
+  p.on('error', function(e){
     dbgw('Errore peer (guest):', e.type, e);
+    if(id !== attemptSeq){ return; }
     var m = (e.type === 'peer-unavailable') ? 'Stanza non trovata. Controlla il codice.' : 'Errore di rete: ' + e.type;
-    if(entered){ log(m, 'err'); } else { setupMsg(m); }
+    if(mode === 'fresh' && entered){
+      if(SIGNAL_ERRORS.indexOf(e.type) < 0){ log(m, 'err'); }
+    } else { fail(m); }
   });
+}
+
+/* ---------- Riconnessione automatica (guest) ---------- */
+function onHostLost(){
+  if(!entered || leaving || closedByHost || isHost){ return; }
+  startReconnect(false);
+}
+function attemptRejoin(){
+  if(!reconnecting){ return; }
+  getPeerOpts(function(opts){ if(reconnecting){ startGuest(roomCode, opts, 'rejoin'); } });
+}
+function startReconnect(immediate){
+  if(reconnecting || leaving || closedByHost){ return; }
+  reconnecting = true;
+  retryCount = 0;
+  if(entered){ log('Riconnessione in corso...', 'sys'); }
+  clearTimeout(retryTimer);
+  retryTimer = setTimeout(attemptRejoin, immediate ? 0 : 500);
+}
+function scheduleRetry(){
+  if(!reconnecting){ return; }
+  retryCount++;
+  if(retryCount > (entered ? 30 : 8)){ giveUpReconnect(); return; }
+  clearTimeout(retryTimer);
+  retryTimer = setTimeout(attemptRejoin, Math.min(1500 + retryCount * 1000, 8000));
+}
+function giveUpReconnect(){
+  reconnecting = false;
+  clearTimeout(retryTimer);
+  if(entered){ log('Impossibile ripristinare la connessione. Ricarica la pagina per riprovare.', 'err'); }
+  else { clearSession(); resumeData = null; setupMsg('Impossibile riprendere la partita: la stanza non è più disponibile.'); }
+}
+function linkCheck(){
+  if(!entered || leaving || closedByHost){ return; }
+  var now = Date.now();
+  if(isHost){
+    conns.slice().forEach(function(c){
+      if(c.open && c.lastRx && now - c.lastRx > STALE_MS){
+        dbgw('Giocatore silenzioso: chiudo la connessione.');
+        try{ c.close(); }catch(e){}
+      }
+    });
+  } else if(!reconnecting){
+    if(!hostConn || !hostConn.open || now - lastRx > STALE_MS){
+      try{ if(hostConn){ hostConn.close(); } }catch(e){}
+      startReconnect(false);
+    }
+  }
+}
+function startHeartbeat(){
+  if(hbTimer){ return; }
+  hbTimer = setInterval(function(){
+    if(leaving){ return; }
+    if(isHost){ broadcast({t:'hb'}); }
+    else if(hostConn && hostConn.open){ try{ hostConn.send({t:'hb'}); }catch(e){} }
+    linkCheck();
+  }, HB_MS);
 }
 
 /* ---------- Gestione messaggi ---------- */
 function handle(d){
   switch(d.t){
     case 'welcome':
+      clearTimeout(joinTimer);
+      var hadEntered = entered, rejoin = !!d.rejoined, wasRecon = reconnecting;
+      var keep = rejoin && d.gid === gid;
       myN = d.n;
       if(d.name){ myName = d.name; }
+      if(d.token){ myToken = d.token; }
       if(d.chars && d.chars.length){ CHARACTERS = d.chars; }
       if(d.category){ catName = d.category; }
       useAllChars = !!d.all;
       drawn = !!d.drawn;
       roomCode = d.code || roomCode;
-      clearTimeout(joinTimer);
-      enterGame();
-      log('Connesso alla stanza come ' + myName + '. Categoria: ' + catName, 'sys');
-      log(modeText(), 'sys');
+      gid = d.gid || 1;
+      phase = d.phase || 'lobby';
+      turnN = d.turn || 0;
+      lastResult = d.res || null;
+      reconnecting = false;
+      retryCount = 0;
+      clearTimeout(retryTimer);
+      lastRx = Date.now();
+      if(!hadEntered){
+        enterGame();
+        if(keep && resumeData){ restoreLocal(resumeData); }
+      } else if(!keep){
+        outbox = [];
+        buildBoard();
+        resetLocal();
+        scheduleFit();
+      }
+      resumeData = null;
+      if(rejoin || wasRecon){ log('Connessione ripristinata', 'sys'); }
+      else {
+        log('Connesso alla stanza come ' + myName + '. Categoria: ' + catName, 'sys');
+        log(modeText(), 'sys');
+      }
+      flushOutbox();
+      renderTurn();
+      refreshHint();
+      if(phase === 'over' && lastResult){ showEnd(lastResult); }
       break;
     case 'full':
       setupMsg('Stanza piena: massimo 3 giocatori.');
+      if(reconnecting && !entered){ reconnecting = false; clearTimeout(retryTimer); clearSession(); }
+      break;
+    case 'bye':
+      closedByHost = true;
+      reconnecting = false;
+      clearTimeout(retryTimer);
+      clearSession();
+      log('L\'host ha chiuso la stanza. Ricarica la pagina per crearne una nuova o entrare in un\'altra.', 'err');
+      break;
+    case 'hb':
       break;
     case 'roster':
-      roster = d.roster;
+      roster = d.roster || {};
       renderRoster();
+      updateControls();
       break;
     case 'sys':
       log(d.text, 'sys');
@@ -910,102 +1234,280 @@ function handle(d){
     case 'ready':
       if(roster[d.from]){ roster[d.from].ready = true; }
       renderRoster();
+      updateControls();
       log(pname(d.from) + ' ha scelto la carta segreta ed è pronto.', 'sys');
-      checkAllReady();
+      if(isHost){ maybeStart(); }
       break;
     case 'unready':
       if(roster[d.from]){ roster[d.from].ready = false; }
-      renderRoster();
+      if(phase !== 'lobby'){ phase = 'lobby'; turnN = 0; lastResult = null; exitGuess(); closeEnd(); }
+      renderTurn();
+      refreshHint();
       log(pname(d.from) + ' ha ripristinato la partita.', 'sys');
       break;
+    case 'start':
+      phase = 'playing';
+      turnN = d.turn || 0;
+      lastResult = null;
+      renderTurn();
+      refreshHint();
+      log('Tutti i giocatori sono pronti: inizia ' + pname(turnN) + '. Iniziate a fare domande!', 'win');
+      if(turnN === myN){ sfx.turn(); }
+      break;
+    case 'turn':
+      turnN = d.n || 0;
+      renderTurn();
+      if(turnN){
+        log(turnN === myN ? 'È il tuo turno.' : 'Turno di ' + pname(turnN) + '.', 'sys');
+        if(turnN === myN){ sfx.turn(); }
+      }
+      break;
+    case 'pass':
+      if(isHost && phase === 'playing' && d.from === turnN){ advanceTurn(d.from); }
+      break;
     case 'guess':
-      if(d.to === myN && secret !== null){
-        post({t:'result', guesser:d.from, target:myN, card:d.card, ok:(secret === d.card)});
+      if(d.to === myN && secret !== null && phase === 'playing'){
+        post({t:'result', guesser:d.from, target:myN, card:d.card, ok:(secret === d.card), answer:secret});
       }
       break;
     case 'result':
+      if(phase !== 'playing'){ break; }
       var cn = CHARACTERS[d.card] ? CHARACTERS[d.card].name : '?';
+      lastResult = {guesser:d.guesser, target:d.target, card:d.card, ok:!!d.ok, answer:d.answer};
+      phase = 'over';
+      exitGuess();
+      renderTurn();
+      refreshHint();
       if(d.ok){
         log(pname(d.guesser) + ' ha INDOVINATO! La carta di ' + pname(d.target) + ' era ' + cn + '.', 'win');
         celebrate();
         sfx.win();
       }
       else { log(pname(d.guesser) + ' ha sbagliato: la carta di ' + pname(d.target) + ' non è ' + cn + '.', 'err'); }
+      showEnd(lastResult);
+      break;
+    case 'rematch':
+      CHARACTERS = d.chars;
+      gid = d.gid;
+      phase = 'lobby';
+      turnN = 0;
+      lastResult = null;
+      Object.keys(roster).forEach(function(k){ roster[k].ready = false; });
+      closeEnd();
+      exitGuess();
+      buildBoard();
+      resetLocal();
+      renderTurn();
+      scheduleFit();
+      log('Nuova partita: le carte sono state rimescolate. Scegliete la carta segreta.', 'sys');
       break;
   }
-}
-function checkAllReady(){
-  var ids = Object.keys(roster);
-  if(ids.length >= 2 && ids.every(function(k){ return roster[k].ready; })){
-    log('Tutti i giocatori sono pronti: iniziate a fare domande!', 'win');
-  }
+  saveSoon();
 }
 
 /* ---------- Azioni ---------- */
 function confirmSecret(){
   if(secret === null || locked){ return; }
   locked = true;
-  $('confirmBtn').disabled = true;
-  $('guessBtn').disabled = false;
-  $('hint').textContent = 'Clicca le carte per eliminarle (di nuovo per ripristinarle). Usa la chat per le domande.';
   updateSecret();
+  refreshHint();
   post({t:'ready'});
 }
+function exitGuess(){ if(guessMode){ toggleGuess(); } }
 function toggleGuess(){
   guessMode = !guessMode;
   $('board').classList.toggle('guessing', guessMode);
   $('guessBtn').textContent = guessMode ? 'Annulla tentativo' : 'Tenta di indovinare';
-  $('hint').textContent = guessMode
-    ? 'Modalità tentativo: clicca la carta che pensi sia quella dell\'avversario.'
-    : 'Clicca le carte per eliminarle (di nuovo per ripristinarle). Usa la chat per le domande.';
+  updateTargetUI();
+  markTarget();
+  refreshHint();
 }
 function opponents(){
-  return Object.keys(roster).map(Number).filter(function(n){ return n !== myN; });
+  return Object.keys(roster).map(Number).filter(function(n){
+    return n !== myN && roster[n].ready && !roster[n].offline;
+  });
+}
+function updateTargetUI(){
+  var sel = $('target'), multi = guessMode && opponents().length > 1;
+  sel.classList.toggle('hidden', !multi);
+  sel.classList.toggle('target-active', multi);
+}
+function markTarget(){
+  var t = (guessMode && opponents().length > 1) ? Number($('target').value) : 0;
+  var chips = $('roster').children;
+  for(var i = 0; i < chips.length; i++){ chips[i].classList.toggle('target', Number(chips[i].dataset.n) === t); }
 }
 function doGuess(i){
   var opp = opponents();
-  if(!opp.length){ log('Non ci sono avversari connessi.', 'err'); return; }
+  if(!opp.length){ log('Non ci sono avversari pronti da indovinare.', 'err'); return; }
   var target = opp.length === 1 ? opp[0] : Number($('target').value);
+  if(opp.indexOf(target) < 0){ log('Scegli un avversario valido nel menu evidenziato.', 'err'); return; }
   if(!window.confirm('Pensi che la carta di ' + pname(target) + ' sia ' + CHARACTERS[i].name + '?')){ return; }
   log('Hai tentato ' + CHARACTERS[i].name + ' per ' + pname(target) + '...', 'sys');
   post({t:'guess', to:target, card:i});
   toggleGuess();
 }
-function resetBoard(){
+function resetLocal(){
   eliminated = {};
   var all = $('board').children;
   for(var k = 0; k < all.length; k++){ all[k].classList.remove('out'); }
-  if(guessMode){ toggleGuess(); }
+  exitGuess();
   locked = false;
   secret = null;
   updateSecret();
-  $('confirmBtn').disabled = true;
-  $('guessBtn').disabled = true;
-  $('hint').textContent = 'Clicca una carta per sceglierla come segreta, poi conferma.';
+  refreshHint();
+}
+function resetBoard(){
+  if(phase === 'playing' && !window.confirm('Ripristinare tutto? La partita in corso ripartirà dalla scelta delle carte segrete.')){ return; }
+  resetLocal();
   post({t:'unready'});
 }
+function refreshHint(){
+  var t;
+  if(!locked){ t = 'Clicca una carta per sceglierla come segreta, poi conferma.'; }
+  else if(phase === 'lobby'){ t = 'Carta confermata. In attesa che tutti i giocatori confermino la propria.'; }
+  else if(phase === 'over'){ t = 'Partita finita.'; }
+  else if(guessMode){
+    t = opponents().length > 1
+      ? 'Scegli l\'avversario nel menu evidenziato, poi clicca la carta che pensi sia la sua.'
+      : 'Modalità tentativo: clicca la carta che pensi sia quella dell\'avversario.';
+  }
+  else { t = 'Clicca le carte per eliminarle (di nuovo per ripristinarle). Usa la chat per le domande.'; }
+  $('hint').textContent = t;
+}
+function updateControls(){
+  var playing = phase === 'playing';
+  $('confirmBtn').disabled = locked || secret === null;
+  $('guessBtn').disabled = !(locked && playing && opponents().length > 0);
+  $('passBtn').classList.toggle('hidden', !playing);
+  $('passBtn').disabled = !(playing && turnN === myN);
+  $('rematchBtn').classList.toggle('hidden', !(isHost && phase === 'over'));
+  $('turnCtl').classList.toggle('hidden', phase === 'lobby');
+  saveSoon();
+}
+function renderTurn(){
+  var b = $('turnBadge'), mine = phase === 'playing' && turnN === myN, t = '';
+  if(phase === 'playing'){ t = mine ? 'Tuo turno' : 'Turno di ' + pname(turnN); }
+  else if(phase === 'over'){ t = 'Partita finita'; }
+  b.textContent = t;
+  b.classList.toggle('mine', mine);
+  renderRoster();
+  updateControls();
+}
 function renderRoster(){
-  var r = $('roster');
-  r.textContent = '';
-  Object.keys(roster).forEach(function(k){
-    var c = document.createElement('span');
-    c.className = 'chip' + (roster[k].ready ? ' ready' : '');
-    c.textContent = roster[k].name + (Number(k) === myN ? ' (tu)' : '') + (roster[k].ready ? ' ✓' : '');
-    r.appendChild(c);
-  });
-  var sel = $('target');
-  var prev = sel.value;
-  sel.textContent = '';
   var opp = opponents();
+  var sel = $('target'), prev = sel.value;
+  sel.textContent = '';
   opp.forEach(function(n){
     var o = document.createElement('option');
     o.value = n;
-    o.textContent = pname(n);
+    o.textContent = 'Contro: ' + pname(n);
     sel.appendChild(o);
   });
-  if(prev){ sel.value = prev; }
-  sel.classList.toggle('hidden', opp.length < 2);
+  if(prev && sel.querySelector('option[value="' + prev + '"]')){ sel.value = prev; }
+  updateTargetUI();
+  var r = $('roster');
+  r.textContent = '';
+  var tgt = (guessMode && opp.length > 1) ? Number(sel.value) : 0;
+  Object.keys(roster).forEach(function(k){
+    var n = Number(k), p = roster[k];
+    var c = document.createElement('span');
+    c.className = 'chip' + (p.ready ? ' ready' : '') + (p.offline ? ' offline' : '') +
+      (phase === 'playing' && n === turnN ? ' active' : '') + (n === tgt ? ' target' : '');
+    c.dataset.n = n;
+    c.textContent = p.name + (n === myN ? ' (tu)' : '') + (p.ready ? ' ✓' : '') + (p.offline ? ' (offline)' : '');
+    if(p.offline){ c.title = 'In attesa di riconnessione'; }
+    r.appendChild(c);
+  });
 }
+
+/* ---------- Fine partita e rivincita ---------- */
+function showEnd(res){
+  var me = res.guesser === myN, who = pname(res.guesser);
+  $('endTitle').textContent = res.ok
+    ? (me ? 'Hai indovinato!' : who + ' ha indovinato!')
+    : (me ? 'Hai sbagliato!' : who + ' ha sbagliato!');
+  var ch = CHARACTERS[res.answer] || (res.ok ? CHARACTERS[res.card] : null);
+  var owner = res.target === myN ? 'La tua carta' : 'La carta di ' + pname(res.target);
+  var text = ch ? owner + ' era ' + ch.name + '.' : (res.ok ? 'Tentativo riuscito.' : 'Tentativo non riuscito.');
+  if(!res.ok && CHARACTERS[res.card]){ text += ' Il tentativo era ' + CHARACTERS[res.card].name + '.'; }
+  $('endText').textContent = text;
+  var card = $('endCard');
+  card.textContent = '';
+  if(ch){
+    card.appendChild(makeFace(ch));
+    var nm = document.createElement('div');
+    nm.className = 'nm';
+    nm.textContent = ch.name;
+    card.appendChild(nm);
+  }
+  $('endRematch').classList.toggle('hidden', !isHost);
+  $('endWait').classList.toggle('hidden', isHost);
+  $('endWait').textContent = 'In attesa che ' + pname(1) + ' avvii una nuova partita...';
+  $('endModal').classList.remove('hidden');
+  (isHost ? $('endRematch') : $('endModal').querySelector('.modal-x')).focus();
+}
+function closeEnd(){ $('endModal').classList.add('hidden'); }
+function startRematch(){
+  if(!isHost || phase !== 'over'){ return; }
+  var cat = curCat || findCat(catName), chars;
+  if(cat){
+    var full = buildCharacters(cat);
+    chars = drawn ? shuffle(full).slice(0, MAX_CARDS) : shuffle(full);
+  } else { chars = shuffle(CHARACTERS); }
+  var msg = {t:'rematch', chars:chars, gid:gid + 1, from:1};
+  broadcast(msg);
+  handle(msg);
+  pushRoster();
+}
+
+/* ---------- Sessione (sessionStorage) ---------- */
+function saveNow(){
+  saveTimer = null;
+  if(!entered || !roomCode || leaving){ return; }
+  var st = {v:1, ts:Date.now(), code:roomCode, name:myName, host:isHost, n:myN, token:myToken, cat:catName,
+    all:useAllChars, drawn:drawn, gid:gid, phase:phase, turn:turnN, res:lastResult, secret:secret, locked:locked,
+    hidden:secretHidden, elim:Object.keys(eliminated).map(Number)};
+  if(isHost){ st.chars = CHARACTERS; st.roster = roster; st.tokens = tokens; }
+  try{ sessionStorage.setItem(SESSION_KEY, JSON.stringify(st)); }catch(e){}
+}
+function saveSoon(){ if(!saveTimer){ saveTimer = setTimeout(saveNow, 150); } }
+function loadSession(){
+  try{
+    var s = JSON.parse(sessionStorage.getItem(SESSION_KEY) || 'null');
+    if(s && s.v === 1 && s.code && s.name && Date.now() - s.ts < SESSION_TTL){ return s; }
+  }catch(e){}
+  return null;
+}
+function clearSession(){ try{ sessionStorage.removeItem(SESSION_KEY); }catch(e){} }
+function restoreLocal(s){
+  if(!s){ return; }
+  secret = (typeof s.secret === 'number' && CHARACTERS[s.secret]) ? s.secret : null;
+  locked = !!s.locked && secret !== null;
+  secretHidden = !!s.hidden;
+  eliminated = {};
+  (s.elim || []).forEach(function(i){
+    var el = cardEl(i);
+    if(el){ eliminated[i] = true; el.classList.add('out'); }
+  });
+  updateSecret();
+  refreshSecretMask();
+  refreshHint();
+}
+function leaveRoom(){
+  if(!window.confirm('Vuoi uscire dalla stanza?')){ return; }
+  leaving = true;
+  clearSession();
+  try{
+    if(isHost){ broadcast({t:'bye'}); }
+    else if(hostConn && hostConn.open){ hostConn.send({t:'leave'}); }
+  }catch(e){}
+  setTimeout(function(){
+    try{ if(peer){ peer.destroy(); } }catch(e){}
+    location.reload();
+  }, 250);
+}
+
 function enterGame(){
   entered = true;
   setupMsg('');
@@ -1014,9 +1516,12 @@ function enterGame(){
   document.body.classList.add('in-game');
   refreshCode();
   buildBoard();
-  renderRoster();
+  renderTurn();
+  refreshHint();
   fitBoard();
   scheduleFit();
+  startHeartbeat();
+  saveSoon();
 }
 
 /* ---------- Selezione categoria ---------- */
@@ -1076,6 +1581,7 @@ document.addEventListener('keydown', function(e){
   ['rulesModal', 'creditsModal'].forEach(function(id){
     if(!$(id).classList.contains('hidden')){ closeInfo(id); }
   });
+  if(!$('endModal').classList.contains('hidden')){ closeEnd(); }
 });
 
 /* ---------- Eventi ---------- */
@@ -1140,6 +1646,26 @@ $('chatForm').addEventListener('submit', function(e){
   $('chatIn').value = '';
   post({t:'chat', text:v});
 });
+$('passBtn').addEventListener('click', function(){ post({t:'pass'}); });
+$('rematchBtn').addEventListener('click', startRematch);
+$('endRematch').addEventListener('click', startRematch);
+$('target').addEventListener('change', markTarget);
+$('leaveBtn').addEventListener('click', leaveRoom);
+$('endModal').querySelector('.modal-x').addEventListener('click', closeEnd);
+$('endModal').addEventListener('click', function(e){ if(e.target === $('endModal')){ closeEnd(); } });
+document.addEventListener('visibilitychange', function(){
+  if(document.visibilityState === 'visible'){ setTimeout(linkCheck, 3000); }
+});
+window.addEventListener('online', function(){
+  if(reconnecting){ clearTimeout(retryTimer); retryTimer = setTimeout(attemptRejoin, 200); }
+  else { setTimeout(linkCheck, 1500); }
+});
+(function boot(){
+  var s = loadSession();
+  if(!s){ return; }
+  $('nameIn').value = s.name || '';
+  if(s.host){ resumeHost(s); } else { resumeGuest(s); }
+})();
 })();
 </script>
 </body>
