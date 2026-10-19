@@ -8,25 +8,59 @@ $f = Get-ChildItem -File | Where-Object { $_.Extension -match '^\.(jpg|jpeg|png|
 
 var METERED_APP = 'indovina-chi';
 var METERED_KEY = 'a5d9c1fafa80535908cb05f932aa64e5ba5b';
+/* Alternativa senza fetch: in Metered > TURN Credentials > "Add Credential" crea username/password statici e incollali qui. */
+var METERED_USER = '6ca2984a40b7545145738696';
+var METERED_PASS = 'C9oieenvSoY/LI/f';
+/* Per provare senza modificare il file: apri il sito con ?turnapp=NOMEAPP&turnkey=APIKEY (viene ricordato nel browser). */
+(function(){
+  try{
+    var q = new URLSearchParams(location.search);
+    if(q.get('turnapp') && q.get('turnkey')){
+      localStorage.setItem('indovinachi-turn', JSON.stringify({app:q.get('turnapp'), key:q.get('turnkey')}));
+    }
+    var sv = JSON.parse(localStorage.getItem('indovinachi-turn') || 'null');
+    if(sv && !METERED_APP){ METERED_APP = sv.app; METERED_KEY = sv.key; }
+  }catch(e){}
+})();
 var CUSTOM_TURN = [
   {
       urls: "stun:stun.relay.metered.ca:80",
     },
     {
       urls: "turn:global.relay.metered.ca:80",
-      username: "Davide",
-      credential: "davide",
+      username: "6ca2984a40b7545145738696",
+      credential: "C9oieenvSoY/LI/f",
     },
     {
       urls: "turn:global.relay.metered.ca:80?transport=tcp",
-      username: "Francesco",
-      credential: "francesco",
+      username: "6ca2984a40b7545145738696",
+      credential: "C9oieenvSoY/LI/f",
     },
     {
       urls: "turn:global.relay.metered.ca:443",
-      username: "Simone",
-      credential: "simone",
+      username: "6ca2984a40b7545145738696",
+      credential: "C9oieenvSoY/LI/f",
+    },
+    {
+      urls: "turns:global.relay.metered.ca:443?transport=tcp",
+      username: "6ca2984a40b7545145738696",
+      credential: "C9oieenvSoY/LI/f",
     }
+];
+var STUN_SERVERS = [
+  { urls: 'stun:stun.l.google.com:19302' },
+  { urls: 'stun:stun1.l.google.com:19302' },
+  { urls: 'stun:stun2.l.google.com:19302' },
+  { urls: 'stun:stun.relay.metered.ca:80' },
+  { urls: 'stun:global.stun.twilio.com:3478' }
+];
+/* Relay pubblici di riserva (non garantiti). Le porte 443 (anche TLS/TCP) superano i firewall degli operatori mobili. */
+var FALLBACK_TURN = [
+  { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
+  { urls: 'turn:openrelay.metered.ca:80?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' },
+  { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
+  { urls: 'turns:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' },
+  { urls: ['turn:freestun.net:3478', 'turns:freestun.net:5349'], username: 'free', credential: 'free' }
 ];
 
 var CATEGORIES = [

@@ -428,24 +428,43 @@ var PREFIX = 'indovinachi-';
    3) I relay pubblici in FALLBACK_TURN sono gratuiti ma NON garantiti: possono smettere di funzionare. */
 var METERED_APP = 'indovina-chi';
 var METERED_KEY = 'a5d9c1fafa80535908cb05f932aa64e5ba5b';
+/* Alternativa senza fetch: in Metered > TURN Credentials > "Add Credential" crea username/password statici e incollali qui. */
+var METERED_USER = '6ca2984a40b7545145738696';
+var METERED_PASS = 'C9oieenvSoY/LI/f';
+/* Per provare senza modificare il file: apri il sito con ?turnapp=NOMEAPP&turnkey=APIKEY (viene ricordato nel browser). */
+(function(){
+  try{
+    var q = new URLSearchParams(location.search);
+    if(q.get('turnapp') && q.get('turnkey')){
+      localStorage.setItem('indovinachi-turn', JSON.stringify({app:q.get('turnapp'), key:q.get('turnkey')}));
+    }
+    var sv = JSON.parse(localStorage.getItem('indovinachi-turn') || 'null');
+    if(sv && !METERED_APP){ METERED_APP = sv.app; METERED_KEY = sv.key; }
+  }catch(e){}
+})();
 var CUSTOM_TURN = [
   {
       urls: "stun:stun.relay.metered.ca:80",
     },
     {
       urls: "turn:global.relay.metered.ca:80",
-      username: "Davide",
-      credential: "davide",
+      username: "6ca2984a40b7545145738696",
+      credential: "C9oieenvSoY/LI/f",
     },
     {
       urls: "turn:global.relay.metered.ca:80?transport=tcp",
-      username: "Francesco",
-      credential: "francesco",
+      username: "6ca2984a40b7545145738696",
+      credential: "C9oieenvSoY/LI/f",
     },
     {
       urls: "turn:global.relay.metered.ca:443",
-      username: "Simone",
-      credential: "simone",
+      username: "6ca2984a40b7545145738696",
+      credential: "C9oieenvSoY/LI/f",
+    },
+    {
+      urls: "turns:global.relay.metered.ca:443?transport=tcp",
+      username: "6ca2984a40b7545145738696",
+      credential: "C9oieenvSoY/LI/f",
     }
 ];
 var STUN_SERVERS = [
@@ -489,9 +508,32 @@ function buildOpts(turn){
   }
   return { debug: 2, config: cfg };
 }
+function staticMetered(){
+  if(!METERED_USER || !METERED_PASS){ return []; }
+  return [
+    { urls: 'turn:global.relay.metered.ca:80', username: METERED_USER, credential: METERED_PASS },
+    { urls: 'turn:global.relay.metered.ca:80?transport=tcp', username: METERED_USER, credential: METERED_PASS },
+    { urls: 'turn:global.relay.metered.ca:443', username: METERED_USER, credential: METERED_PASS },
+    { urls: 'turns:global.relay.metered.ca:443?transport=tcp', username: METERED_USER, credential: METERED_PASS }
+  ];
+}
+/* Unisce senza duplicati (stesso url+username) mantenendo l'ordine. */
+function mergeServers(){
+  var out = [], seen = {};
+  [].slice.call(arguments).forEach(function(list){
+    (list || []).forEach(function(sv){
+      var u = [].concat(sv.urls).join('|') + '#' + (sv.username || '');
+      if(!seen[u]){ seen[u] = 1; out.push(sv); }
+    });
+  });
+  return out;
+}
 function getPeerOpts(cb){
   if(iceCache){ cb(buildOpts(iceCache)); return; }
-  var base = CUSTOM_TURN.concat(FALLBACK_TURN);
+  var mine = mergeServers(staticMetered(), CUSTOM_TURN);
+  var hasKeys = !!(METERED_APP && METERED_KEY);
+  /* I relay pubblici vanno in timeout da rete mobile e rallentano la raccolta ICE: li uso solo se non ho credenziali tue. */
+  var base = (mine.length || hasKeys) ? mine : FALLBACK_TURN;
   var done = false, t = null;
   function finish(list, msg){
     if(done){ return; }
@@ -503,20 +545,23 @@ function getPeerOpts(cb){
     dbg('Pool ICE: ' + STUN_SERVERS.length + ' server STUN + ' + urls.length + ' indirizzi TURN:', urls.join(', '));
     cb(buildOpts(list));
   }
-  if(!METERED_APP || !METERED_KEY){
-    finish(base, CUSTOM_TURN.length ? 'Metered non configurato: uso i TURN personalizzati e i relay pubblici di riserva.'
-      : 'Nessun TURN personale configurato (METERED_APP / METERED_KEY / CUSTOM_TURN vuoti): uso solo i relay pubblici di riserva, non garantiti. Da rete mobile potrebbe non bastare.');
+  if(!hasKeys){
+    finish(base, mine.length ? 'Uso i TURN con credenziali statiche (METERED_USER/CUSTOM_TURN).'
+      : 'Nessuna credenziale TURN configurata (METERED_APP/METERED_KEY, METERED_USER/METERED_PASS o CUSTOM_TURN): uso i relay pubblici, che da rete mobile spesso non funzionano.');
     return;
   }
-  t = setTimeout(function(){ finish(base, 'Timeout (5s) nel recupero delle credenziali Metered: uso i relay di riserva.'); }, 5000);
+  t = setTimeout(function(){ finish(base.length ? base : FALLBACK_TURN, 'Timeout (5s) nel recupero delle credenziali Metered.'); }, 5000);
   fetch('https://' + METERED_APP + '.metered.live/api/v1/turn/credentials?apiKey=' + encodeURIComponent(METERED_KEY))
     .then(function(r){ if(!r.ok){ throw new Error('HTTP ' + r.status); } return r.json(); })
     .then(function(list){
       if(!Array.isArray(list) || !list.length){ throw new Error('risposta vuota'); }
       dbg('Credenziali TURN Metered caricate (' + list.length + ' server).');
-      finish(list.concat(base));
+      /* Aggiungo sempre anche turns:443/TCP, l'unico canale che passa i firewall mobili. */
+      var extra = list.some(function(x){ return /turns:.*:443/.test([].concat(x.urls).join(' ')); }) ? [] :
+        (function(){ var c = list.filter(function(x){ return x.username; })[0]; return c ? [{ urls: 'turns:global.relay.metered.ca:443?transport=tcp', username: c.username, credential: c.credential }] : []; })();
+      finish(mergeServers(list, extra, mine));
     })
-    .catch(function(e){ finish(base, 'Credenziali Metered non disponibili (' + e.message + '): uso i relay di riserva.'); });
+    .catch(function(e){ finish(base.length ? base : FALLBACK_TURN, 'Credenziali Metered non disponibili (' + e.message + '): uso STUN e i TURN alternativi.'); });
 }
 
 /* Diagnostica WebRTC/PeerJS in console */
