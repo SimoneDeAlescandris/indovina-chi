@@ -6,6 +6,29 @@
 
 $f = Get-ChildItem -File | Where-Object { $_.Extension -match '^\.(jpg|jpeg|png|gif|webp)$' } | Sort-Object Name; (($f | ForEach-Object { "'" + ($_.Name -replace "'", "\'") + "'" }) -join ', ') | Set-Clipboard
 
+var METERED_APP = 'indovina-chi';
+var METERED_KEY = 'a5d9c1fafa80535908cb05f932aa64e5ba5b';
+var CUSTOM_TURN = [
+  {
+      urls: "stun:stun.relay.metered.ca:80",
+    },
+    {
+      urls: "turn:global.relay.metered.ca:80",
+      username: "Davide",
+      credential: "davide",
+    },
+    {
+      urls: "turn:global.relay.metered.ca:80?transport=tcp",
+      username: "Francesco",
+      credential: "francesco",
+    },
+    {
+      urls: "turn:global.relay.metered.ca:443",
+      username: "Simone",
+      credential: "simone",
+    }
+];
+
 var CATEGORIES = [
   {
     name: 'Youtuber',

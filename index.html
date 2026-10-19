@@ -419,61 +419,104 @@ function modeText(){
 }
 
 var PREFIX = 'indovinachi-';
-/* TURN gratuito (Metered): registrati su https://dashboard.metered.ca/signup, crea un'app
-   e una credenziale TURN, poi copia qui il nome dell'app (nomeapp.metered.live) e la sua API key. */
-var METERED_APP = '';
-var METERED_KEY = '';
+/* ===== Configurazione ICE (STUN + TURN) =====
+   Per giocare da rete mobile 4G/5G (CGNAT / NAT simmetrico) o da hotspot serve un server TURN che faccia da relay.
+   Il pool qui sotto viene provato tutto insieme: il browser usa il primo percorso che funziona.
+   1) CONSIGLIATO - Metered (gratis, 20 GB/mese): https://dashboard.metered.ca/signup -> crea un'app,
+      poi copia il nome app (nomeapp.metered.live) e la API key (sicura da mettere nel front-end).
+   2) In alternativa compila CUSTOM_TURN con le credenziali di ExpressTURN, Xirsys, Twilio, ecc.
+   3) I relay pubblici in FALLBACK_TURN sono gratuiti ma NON garantiti: possono smettere di funzionare. */
+var METERED_APP = 'indovina-chi';
+var METERED_KEY = 'a5d9c1fafa80535908cb05f932aa64e5ba5b';
+var CUSTOM_TURN = [
+  {
+      urls: "stun:stun.relay.metered.ca:80",
+    },
+    {
+      urls: "turn:global.relay.metered.ca:80",
+      username: "Davide",
+      credential: "davide",
+    },
+    {
+      urls: "turn:global.relay.metered.ca:80?transport=tcp",
+      username: "Francesco",
+      credential: "francesco",
+    },
+    {
+      urls: "turn:global.relay.metered.ca:443",
+      username: "Simone",
+      credential: "simone",
+    }
+];
 var STUN_SERVERS = [
   { urls: 'stun:stun.l.google.com:19302' },
   { urls: 'stun:stun1.l.google.com:19302' },
   { urls: 'stun:stun2.l.google.com:19302' },
-  { urls: 'stun:stun.relay.metered.ca:80' }
+  { urls: 'stun:stun.relay.metered.ca:80' },
+  { urls: 'stun:global.stun.twilio.com:3478' }
 ];
-/* Relay pubblici di riserva (non garantiti): usati solo se Metered non è configurato o non risponde. */
+/* Relay pubblici di riserva (non garantiti). Le porte 443 (anche TLS/TCP) superano i firewall degli operatori mobili. */
 var FALLBACK_TURN = [
   { urls: 'turn:openrelay.metered.ca:80', username: 'openrelayproject', credential: 'openrelayproject' },
+  { urls: 'turn:openrelay.metered.ca:80?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' },
   { urls: 'turn:openrelay.metered.ca:443', username: 'openrelayproject', credential: 'openrelayproject' },
-  { urls: 'turns:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' }
+  { urls: 'turns:openrelay.metered.ca:443?transport=tcp', username: 'openrelayproject', credential: 'openrelayproject' },
+  { urls: ['turn:freestun.net:3478', 'turns:freestun.net:5349'], username: 'free', credential: 'free' }
 ];
 var iceCache = null;
+
+/* Modalità relay: scatta dopo un fallimento della connessione diretta e resta attiva per la sessione del browser. */
+var relayForced = false;
+try{ relayForced = sessionStorage.getItem('indovinachi-relay') === '1'; }catch(e){}
+function relayTest(){ return /[?&]relay=1/.test(location.search); }
 
 function dbg(){ console.log.apply(console, ['[IndovinaChi]'].concat([].slice.call(arguments))); }
 function dbgw(){ console.warn.apply(console, ['[IndovinaChi]'].concat([].slice.call(arguments))); }
 
+function describeServers(turn){
+  var urls = [];
+  turn.forEach(function(s){ urls = urls.concat(s.urls); });
+  return urls;
+}
 function buildOpts(turn){
-  var cfg = { iceServers: STUN_SERVERS.concat(turn) };
-  if(/[?&]relay=1/.test(location.search)){
+  var cfg = { iceServers: STUN_SERVERS.concat(turn), iceCandidatePoolSize: 2 };
+  if(relayTest()){
     cfg.iceTransportPolicy = 'relay';
     dbgw('Modalità test ?relay=1: la connessione passerà SOLO dal server TURN.');
+  } else if(relayForced){
+    cfg.iceTransportPolicy = 'relay';
+    dbgw('Modalità RELAY attiva: la connessione passerà solo dai server TURN.');
   }
   return { debug: 2, config: cfg };
 }
 function getPeerOpts(cb){
   if(iceCache){ cb(buildOpts(iceCache)); return; }
-  if(!METERED_APP || !METERED_KEY){
-    dbgw('TURN Metered non configurato (METERED_APP / METERED_KEY vuoti): uso solo i relay pubblici di riserva, non garantiti. Le reti mobili o con CGNAT potrebbero non connettersi.');
-    iceCache = FALLBACK_TURN;
-    cb(buildOpts(iceCache));
-    return;
-  }
-  var done = false;
-  function finish(turn, msg){
+  var base = CUSTOM_TURN.concat(FALLBACK_TURN);
+  var done = false, t = null;
+  function finish(list, msg){
     if(done){ return; }
     done = true;
     clearTimeout(t);
     if(msg){ dbgw(msg); }
-    iceCache = turn;
-    cb(buildOpts(turn));
+    iceCache = list;
+    var urls = describeServers(list);
+    dbg('Pool ICE: ' + STUN_SERVERS.length + ' server STUN + ' + urls.length + ' indirizzi TURN:', urls.join(', '));
+    cb(buildOpts(list));
   }
-  var t = setTimeout(function(){ finish(FALLBACK_TURN, 'Timeout (5s) nel recupero delle credenziali TURN: uso i relay di riserva.'); }, 5000);
+  if(!METERED_APP || !METERED_KEY){
+    finish(base, CUSTOM_TURN.length ? 'Metered non configurato: uso i TURN personalizzati e i relay pubblici di riserva.'
+      : 'Nessun TURN personale configurato (METERED_APP / METERED_KEY / CUSTOM_TURN vuoti): uso solo i relay pubblici di riserva, non garantiti. Da rete mobile potrebbe non bastare.');
+    return;
+  }
+  t = setTimeout(function(){ finish(base, 'Timeout (5s) nel recupero delle credenziali Metered: uso i relay di riserva.'); }, 5000);
   fetch('https://' + METERED_APP + '.metered.live/api/v1/turn/credentials?apiKey=' + encodeURIComponent(METERED_KEY))
     .then(function(r){ if(!r.ok){ throw new Error('HTTP ' + r.status); } return r.json(); })
     .then(function(list){
       if(!Array.isArray(list) || !list.length){ throw new Error('risposta vuota'); }
       dbg('Credenziali TURN Metered caricate (' + list.length + ' server).');
-      finish(list);
+      finish(list.concat(base));
     })
-    .catch(function(e){ finish(FALLBACK_TURN, 'Credenziali TURN Metered non disponibili (' + e.message + '): uso i relay di riserva.'); });
+    .catch(function(e){ finish(base, 'Credenziali Metered non disponibili (' + e.message + '): uso i relay di riserva.'); });
 }
 
 /* Diagnostica WebRTC/PeerJS in console */
@@ -489,28 +532,49 @@ function logRoute(pc, label){
     else { stats.forEach(function(r){ if(r.type === 'candidate-pair' && r.nominated && r.state === 'succeeded'){ pair = r; } }); }
     if(pair){
       var l = byId[pair.localCandidateId], rm = byId[pair.remoteCandidateId];
-      dbg(label + ': percorso ICE scelto locale=' + (l && l.candidateType) + ' remoto=' + (rm && rm.candidateType) + ' (relay = passa dal TURN)');
+      var lt = l && l.candidateType, rt = rm && rm.candidateType;
+      var kind = (lt === 'relay' || rt === 'relay') ? 'RELAY (server TURN)' : (lt === 'host' && rt === 'host') ? 'DIRETTO in rete locale/hotspot' : 'DIRETTO P2P (STUN)';
+      dbg(label + ': percorso ICE scelto -> ' + kind + ' | locale=' + lt + (l && l.protocol ? '/' + l.protocol : '') + (l && l.relayProtocol ? ' (relay via ' + l.relayProtocol + ')' : '') + (l && l.url ? ' server=' + l.url : '') + ' | remoto=' + rt);
     }
   }).catch(function(){});
 }
-function watchIce(conn, label){
+function candType(c){ var m = /typ (\w+)/.exec(c.candidate || ''); return m ? m[1] : '?'; }
+function watchIce(conn, label, onFail){
   var pc = conn.peerConnection;
   if(!pc){ dbgw(label + ': peerConnection non disponibile per la diagnostica.'); return; }
-  var t0 = Date.now();
+  var t0 = Date.now(), counts = {host:0, srflx:0, relay:0, prflx:0}, fired = false;
   function secs(){ return ((Date.now() - t0) / 1000).toFixed(1) + 's'; }
-  pc.addEventListener('iceconnectionstatechange', function(){
-    dbg(label + ': ICE connection = ' + pc.iceConnectionState + ' (' + secs() + ')');
-    if(pc.iceConnectionState === 'connected' || pc.iceConnectionState === 'completed'){ logRoute(pc, label); }
-    if(pc.iceConnectionState === 'failed'){
-      dbgw(label + ': negoziazione ICE fallita. Probabile NAT restrittivo/CGNAT: serve un server TURN funzionante (prova ?relay=1 per verificarlo).');
+  function fail(why){
+    if(fired){ return; }
+    fired = true;
+    dbgw(label + ': ' + why);
+    if(onFail){ onFail(why); }
+  }
+  pc.addEventListener('icecandidate', function(e){
+    if(!e.candidate){
+      dbg(label + ': candidati raccolti -> host=' + counts.host + ' srflx=' + counts.srflx + ' relay=' + counts.relay + ' (' + secs() + ')');
+      if(!counts.relay){ dbgw(label + ': NESSUN candidato relay: server TURN irraggiungibili o credenziali non valide. Da rete mobile la connessione potrebbe fallire.'); }
+      return;
     }
+    var ty = candType(e.candidate);
+    counts[ty] = (counts[ty] || 0) + 1;
+    dbg(label + ': candidato ' + ty + ' ' + (e.candidate.protocol || '') + (e.candidate.url || e.url ? ' via ' + (e.candidate.url || e.url) : ''));
+  });
+  pc.addEventListener('iceconnectionstatechange', function(){
+    var st = pc.iceConnectionState;
+    dbg(label + ': ICE connection = ' + st + ' (' + secs() + ')');
+    if(st === 'connected' || st === 'completed'){ logRoute(pc, label); }
+    if(st === 'failed'){ fail('negoziazione ICE fallita (NAT restrittivo/CGNAT?).'); }
   });
   pc.addEventListener('icegatheringstatechange', function(){ dbg(label + ': ICE gathering = ' + pc.iceGatheringState + ' (' + secs() + ')'); });
-  pc.addEventListener('connectionstatechange', function(){ dbg(label + ': connessione = ' + pc.connectionState); });
+  pc.addEventListener('connectionstatechange', function(){
+    dbg(label + ': connessione = ' + pc.connectionState);
+    if(pc.connectionState === 'failed'){ fail('connessione WebRTC fallita.'); }
+  });
   pc.addEventListener('icecandidateerror', function(e){
     dbgw(label + ': errore candidato ICE', e.errorCode || '', e.errorText || '', e.url || '');
   });
-  conn.on('error', function(err){ dbgw(label + ': errore canale dati', err); });
+  conn.on('error', function(err){ dbgw(label + ': errore canale dati', err); fail('errore del canale dati.'); });
 }
 function tryReconnectSignal(p, k){
   if(p.destroyed || !p.disconnected || leaving){ return; }
@@ -967,7 +1031,7 @@ function dropSeat(n, text){
 }
 function onIncoming(conn){
   dbg('Connessione in ingresso da', conn.peer);
-  watchIce(conn, 'host');
+  watchIce(conn, 'host', function(){ dbgw('host: un giocatore non è riuscito a collegarsi direttamente; proverà tramite relay.'); });
   conn.on('data', function(d){ conn.lastRx = Date.now(); onHostData(conn, d); });
   conn.on('close', function(){
     var i = conns.indexOf(conn);
@@ -1051,13 +1115,31 @@ function resumeGuest(sess){
   startReconnect(true);
 }
 function startGuest(code, opts, mode){
-  var id = ++attemptSeq, failed = false, opened = false;
+  var id = ++attemptSeq, failed = false, opened = false, linked = false;
   function fail(msg){
     if(failed || id !== attemptSeq){ return; }
     failed = true;
     clearTimeout(joinTimer);
     if(mode === 'fresh'){ setupMsg(msg); } else { scheduleRetry(); }
   }
+  /* Connessione diretta non riuscita: riprova forzando il passaggio dal server TURN (una sola volta). */
+  function escalate(why){
+    if(failed || linked || id !== attemptSeq || relayForced || relayTest()){ return false; }
+    relayForced = true;
+    try{ sessionStorage.setItem('indovinachi-relay', '1'); }catch(e){}
+    dbgw('Passo alla modalità relay (motivo: ' + why + ').');
+    var msg = 'Connessione diretta non disponibile, passaggio al server di relay...';
+    log(msg, 'sys');
+    if(!entered){ setupMsg(msg); }
+    clearTimeout(joinTimer);
+    getPeerOpts(function(o){
+      if(id !== attemptSeq || leaving){ return; }
+      if(mode === 'fresh' ? entered : !reconnecting){ return; }
+      startGuest(code, o, mode);
+    });
+    return true;
+  }
+  var RELAY_FAIL = 'Connessione non riuscita nemmeno tramite il server di relay. Prova a cambiare rete o riprova tra poco (dettagli nella console del browser).';
   hostConn = null;
   if(peer && !peer.destroyed){ try{ peer.destroy(); }catch(e){} }
   var p = new Peer(undefined, opts);
@@ -1069,8 +1151,9 @@ function startGuest(code, opts, mode){
     dbg('Provo a connettermi alla stanza', code, mode === 'rejoin' ? '(riconnessione)' : '');
     var c = p.connect(PREFIX + code, {reliable:true});
     hostConn = c;
-    watchIce(c, 'guest');
+    watchIce(c, 'guest' + (relayForced || relayTest() ? '[relay]' : ''), function(why){ if(!escalate(why)){ fail(relayForced ? RELAY_FAIL : 'Connessione non riuscita (' + why + ')'); } });
     c.on('open', function(){
+      linked = true;
       lastRx = Date.now();
       c.send({t:'hello', name:myName, rejoin:mode === 'rejoin', n:myN, token:myToken});
     });
@@ -1086,13 +1169,15 @@ function startGuest(code, opts, mode){
     });
     clearTimeout(joinTimer);
     joinTimer = setTimeout(function(){
-      dbgw('Timeout (20s): il canale dati con l\'host non si è aperto. Controlla gli stati ICE sopra.');
-      fail('Stanza non raggiungibile. Controlla il codice o la rete (dettagli nella console del browser).');
-    }, 20000);
+      dbgw('Timeout: il canale dati con l\'host non si è aperto. Controlla gli stati ICE sopra.');
+      if(escalate('timeout')){ return; }
+      fail(relayForced ? RELAY_FAIL : 'Stanza non raggiungibile. Controlla il codice o la rete (dettagli nella console del browser).');
+    }, relayForced ? 25000 : 12000);
   });
   p.on('error', function(e){
     dbgw('Errore peer (guest):', e.type, e);
     if(id !== attemptSeq){ return; }
+    if(!linked && ['webrtc', 'negotiation-failed', 'connection-failed'].indexOf(e.type) >= 0 && escalate(e.type)){ return; }
     var m = (e.type === 'peer-unavailable') ? 'Stanza non trovata. Controlla il codice.' : 'Errore di rete: ' + e.type;
     if(mode === 'fresh' && entered){
       if(SIGNAL_ERRORS.indexOf(e.type) < 0){ log(m, 'err'); }
