@@ -3,8 +3,8 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Indovina Chi? Edizione YouTuber</title>
-<meta name="description" content="Indovina Chi? online per 2 o 3 giocatori, in stile YouTuber. Crea una stanza e gioca con gli amici direttamente dal browser.">
+<title>Indovina Chi?</title>
+<meta name="description" content="Indovina Chi? Online per 2 o 3 giocatori. Crea una stanza e gioca con gli amici direttamente dal browser.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Fredoka:wght@400;600;700&display=swap" rel="stylesheet">
 <style>
@@ -98,13 +98,39 @@ body:not(.in-game) footer{margin-top:0;padding:24px 16px 12px;align-self:stretch
 .modal-box{background:var(--panel);border:3px solid var(--line);border-radius:16px;box-shadow:0 6px 0 #000;padding:28px;width:100%;max-width:880px;max-height:calc(100vh - 32px);overflow-y:auto;text-align:center;position:relative;animation:slideUp .35s ease-out}
 @keyframes slideUp{from{transform:translateY(40vh);opacity:0}to{transform:translateY(0);opacity:1}}
 .modal-box h2{margin:0 0 20px;font-size:1.8rem;color:var(--gold);text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000,0 3px 0 #000}
-.all-toggle{position:relative;display:flex;align-items:center;justify-content:center;gap:14px;margin:0 auto 22px;max-width:560px;cursor:pointer;font-size:1rem;text-align:left;line-height:1.3}
-.all-toggle input{position:absolute;opacity:0;width:1px;height:1px;margin:0}
-.switch{flex:none;position:relative;width:54px;height:30px;border:3px solid var(--line);border-radius:999px;background:#3a3f4b;transition:background .2s}
-.switch::after{content:"";position:absolute;top:2px;left:2px;width:20px;height:20px;border-radius:50%;background:var(--text);transition:transform .2s}
-.all-toggle input:checked + .switch{background:var(--gold)}
-.all-toggle input:checked + .switch::after{transform:translateX(24px);background:var(--ink)}
-.all-toggle input:focus-visible + .switch{outline:3px solid var(--accent2);outline-offset:2px}
+.cat-modal-title{margin:0 0 8px;font-size:1.8rem;color:var(--gold);text-shadow:-1px -1px 0 #000,1px -1px 0 #000,-1px 1px 0 #000,1px 1px 0 #000,0 3px 0 #000}
+.cat-subtitle{margin:0 0 14px;font-size:1.12rem;color:var(--text)}
+.cat-box{min-height:210px}
+.cat-box.selected{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,215,0,.25),0 4px 0 #000;transform:translateY(-2px)}
+.room-settings{display:flex;flex-direction:column;gap:18px;max-width:760px;margin:0 auto 20px;text-align:left}
+.setting-panel{background:#13161d;border:2px solid #000;border-radius:14px;padding:16px;text-align:left}
+.setting-panel h3,.setting-panel h4{margin:0 0 12px;color:var(--gold);line-height:1.25}
+.setting-panel h3{font-size:1.12rem}
+.setting-panel h4{font-size:1.02rem}
+.setting-help{margin:8px 0 0;color:var(--muted);font-size:.83rem}
+.gen-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px}
+.gen-option{display:flex;align-items:center;gap:9px;padding:10px;background:var(--panel2);border:2px solid #000;border-radius:10px;text-align:left;cursor:pointer;font-size:.88rem}
+.gen-option input[type="checkbox"],.jolly-option input[type="checkbox"]{width:19px;height:19px;min-width:19px;margin:0;padding:0;border:2px solid #000;border-radius:4px;accent-color:var(--gold);cursor:pointer}
+.gen-actions{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;margin-top:12px}
+.gen-actions button{font-size:.82rem;padding:6px 12px;border-width:2px;box-shadow:0 2px 0 var(--goldd)}
+.slider-row{display:grid;grid-template-columns:42px minmax(80px,1fr) minmax(76px,auto) 42px;align-items:center;gap:10px}
+.slider-btn{width:42px;height:42px;padding:0;font-size:1.45rem;line-height:1;background:var(--gold);color:var(--ink);border:3px solid #000;box-shadow:0 3px 0 var(--goldd)}
+#deckSizeRange{width:100%;height:28px;margin:0;padding:0;border:0;border-radius:0;background:transparent;accent-color:var(--gold);cursor:pointer;appearance:none;-webkit-appearance:none}
+#deckSizeRange::-webkit-slider-runnable-track{height:7px;background:#000;border:1px solid #000;border-radius:99px}
+#deckSizeRange::-moz-range-track{height:7px;background:#000;border:1px solid #000;border-radius:99px}
+#deckSizeRange::-webkit-slider-thumb{-webkit-appearance:none;appearance:none;width:22px;height:22px;margin-top:-9px;background:var(--gold);border:3px solid #000;border-radius:50%;box-shadow:0 1px 0 rgba(0,0,0,.35)}
+#deckSizeRange::-moz-range-thumb{width:17px;height:17px;background:var(--gold);border:3px solid #000;border-radius:50%}
+.deck-value{min-width:82px;padding:7px 10px;border:3px solid #000;border-radius:10px;background:var(--gold);color:var(--ink);font-weight:700;text-align:center;font-size:.95rem;box-shadow:0 3px 0 var(--goldd)}
+.penalty-options{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:10px}
+.penalty-option{display:flex;align-items:center;gap:9px;padding:12px;background:var(--panel2);border:2px solid #000;border-radius:10px;text-align:left;cursor:pointer}
+.penalty-option input[type="radio"]{width:18px;height:18px;min-width:18px;margin:0;padding:0;border:0;accent-color:var(--gold)}
+.penalty-option:has(input:checked){border-color:var(--gold);box-shadow:0 0 0 2px rgba(255,215,0,.16)}
+.jolly-option{display:flex;align-items:center;gap:11px;padding:12px;background:var(--panel2);border:2px solid #000;border-radius:10px;cursor:pointer}
+.jolly-option strong{display:block}
+.jolly-option small{display:block;color:var(--muted);font-size:.8rem;margin-top:2px}
+.cat-modal-actions{display:flex;justify-content:center;gap:12px;flex-wrap:wrap;margin-top:8px}
+.cat-modal-actions button{min-width:150px}
+#catSetupMsg{min-height:1.2em;margin:6px 0 0;color:var(--bad);font-size:.87rem;text-align:center}
 .cat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(200px,250px));justify-content:center;gap:18px;margin-bottom:22px}
 .cat-box{background:var(--panel2);color:var(--text);border:3px solid var(--line);border-radius:14px;padding:18px 26px 22px;box-shadow:0 4px 0 #000;display:flex;flex-direction:column;align-items:center;gap:14px}
 .cat-box:hover,.cat-box:focus-visible{border-color:var(--gold);transform:translateY(-2px)}
@@ -180,6 +206,14 @@ body:not(.in-game) footer{margin-top:0;padding:24px 16px 12px;align-self:stretch
   .logwrap{height:360px}
 }
 @media (max-width:560px){
+  .modal-box{padding:20px 12px}
+  .cat-grid{grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px}
+  .cat-box{padding:12px 10px 14px;min-height:185px;gap:10px}
+  .setting-panel{padding:12px}
+  .slider-row{grid-template-columns:34px minmax(70px,1fr) 72px 34px;gap:6px}
+  .slider-btn{width:34px;height:38px;font-size:1.2rem}
+  .deck-value{min-width:70px;padding:6px 4px;font-size:.82rem}
+  .gen-grid{grid-template-columns:1fr}
   #game{padding:50px 10px 10px}
   #roster{gap:4px;margin-bottom:6px}
   .rosterbar{gap:4px 8px;margin-bottom:6px}
@@ -201,6 +235,80 @@ body:not(.in-game) footer{margin-top:0;padding:24px 16px 12px;align-self:stretch
 @media (min-width:901px) and (max-width:1500px){.roombar>span:first-child{display:none}}
 @media (min-width:901px){html:has(body.in-game),body.in-game{overflow:hidden;height:100vh;height:100dvh}}
 @media (prefers-reduced-motion:reduce){.card,header img,header h1,button,.switch,.switch::after,.card-inner{transition:none}.modal-box,.badge.mine,#target.target-active{animation:none}}
+
+
+/* Layout adattivo del pannello Impostazioni Partita */
+.modal-box.cat-settings-box{max-width:1180px;padding:20px 22px}
+.settings-layout{display:grid;grid-template-columns:minmax(0,1.08fr) minmax(340px,.92fr);gap:16px;align-items:start;text-align:left}
+.settings-left,.settings-right{display:flex;flex-direction:column;gap:12px;min-width:0}
+.settings-left .cat-subtitle{margin:0 0 2px;text-align:left}
+.settings-left .setting-panel,.settings-right .setting-panel{width:100%;min-width:0}
+.settings-left .cat-grid{grid-template-columns:repeat(auto-fit,minmax(145px,1fr));gap:10px;margin:0}
+.settings-left .cat-box{min-height:150px;padding:11px 10px 12px;gap:8px}
+.settings-left .cat-prev{gap:5px;max-width:140px}
+.settings-left .cat-prev .face,.settings-left .cat-more{height:56px}
+.settings-left .cat-prev .face .emo{font-size:1.35rem}
+.settings-right .room-settings{max-width:none;margin:0;gap:12px}
+.settings-right .setting-panel{padding:13px}
+.settings-right .penalty-options{grid-template-columns:1fr;gap:7px}
+.settings-right .penalty-option{padding:9px}
+.settings-right .jolly-option{padding:10px}
+.cat-settings-box #catSetupMsg{margin:10px 0 4px}
+.cat-settings-box .cat-modal-actions{margin-top:10px}
+
+/* Roster con ruolo e conteggio scarti */
+button.roster-chip{display:inline-flex;align-items:center;gap:6px;padding:3px 9px;border:2px solid #000;border-radius:999px;background:var(--panel);color:var(--text);font-size:.78rem;line-height:1.25;box-shadow:none;white-space:normal;text-align:left}
+button.roster-chip:hover:not(:disabled){border-color:var(--gold);transform:none;box-shadow:none}
+button.roster-chip.active{border-color:var(--gold);color:var(--gold);background:#2a2410;box-shadow:0 0 0 2px rgba(255,215,0,.22)}
+button.roster-chip.ready{border-color:var(--ok)}
+button.roster-chip .discard-count{font-size:.7rem;color:var(--muted);font-weight:600;white-space:nowrap}
+button.roster-chip.spectator{border-style:dashed;color:var(--muted)}
+body.is-spectator .top,body.is-spectator #hint,body.is-spectator #board,body.is-spectator #quickReplies{display:none!important}
+body.is-spectator #spectatorInfo{display:block!important}
+.spectator-view{display:flex;flex-direction:column;gap:12px;min-height:180px;padding:14px;background:#13161d;border:2px solid #000;border-radius:14px;overflow:hidden}
+.spectator-view-header{display:flex;align-items:flex-start;justify-content:space-between;gap:12px}
+.spectator-view-header h2{margin:0;font-size:1.15rem;color:var(--gold)}
+.spectator-view-header p{margin:4px 0 0}
+.spectator-view-header button{flex:none;padding:5px 10px;font-size:.78rem;border-width:2px;box-shadow:0 2px 0 #000}
+.spectator-secret-panel{display:flex;align-items:center;gap:12px;padding:10px;background:var(--panel);border:2px solid var(--accent2);border-radius:10px}
+#spectatorSecretFace{width:76px;height:76px;flex:none;display:flex;align-items:center;justify-content:center;border-radius:8px;background:var(--panel2);overflow:hidden}
+#spectatorSecretFace .face{width:100%;height:100%}
+#spectatorSecretName{display:block}
+.spectator-board{display:grid;grid-template-columns:repeat(auto-fill,minmax(76px,1fr));gap:8px;align-content:start;overflow:auto;max-height:calc(100dvh - 330px);padding:3px}
+.spectator-board .card{min-height:108px}
+.spectator-board .card .face{aspect-ratio:1/1}
+.spectator-board .card .nm{font-size:.68rem}
+.spectator-board .card.spectator-secret-card .card-front{border-color:var(--accent2);box-shadow:0 0 0 2px rgba(77,225,210,.35)}
+.spectator-notice-box{max-width:560px}
+#spectatorNoticeModal{z-index:80}
+.spectator-notice-box p{margin:0 0 14px}
+.spectator-notice-box #spectatorNoticeOk{display:block;margin:6px auto 0}
+
+@media (max-width:900px){
+  .modal-box.cat-settings-box{max-width:680px;padding:18px}
+  .settings-layout{grid-template-columns:minmax(0,1fr);gap:14px}
+  .settings-left .cat-grid{grid-template-columns:repeat(auto-fit,minmax(145px,1fr))}
+  .settings-right .penalty-options{grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+  .spectator-board{max-height:none}
+}
+@media (max-width:560px){
+  .modal-box.cat-settings-box{padding:16px 11px}
+  .settings-layout{gap:10px}
+  .settings-left,.settings-right,.settings-right .room-settings{gap:10px}
+  .settings-left .cat-grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}
+  .settings-left .cat-box{min-height:132px;padding:9px 7px;gap:7px}
+  .settings-left .cat-prev .face,.settings-left .cat-more{height:48px}
+  .settings-right .setting-panel{padding:10px}
+  button.roster-chip{font-size:.69rem;padding:3px 7px}
+  button.roster-chip .discard-count{font-size:.63rem}
+  .spectator-view{padding:9px}
+  .spectator-view-header{flex-direction:column}
+  .spectator-secret-panel{align-items:center}
+  #spectatorSecretFace{width:58px;height:58px}
+  .spectator-board{grid-template-columns:repeat(auto-fill,minmax(66px,1fr));gap:6px}
+  .spectator-board .card{min-height:94px}
+}
+
 </style>
 </head>
 <body>
@@ -245,14 +353,29 @@ body:not(.in-game) footer{margin-top:0;padding:24px 16px 12px;align-self:stretch
         <div class="info">
           <div class="actions">
             <button id="confirmBtn" type="button" disabled>Conferma carta segreta</button>
-            <button id="hideSecretBtn" class="alt" type="button">Nascondi carta segreta</button>
+            <button id="hideSecretBtn" class="alt hidden" type="button">Nascondi carta segreta</button>
             <button id="guessBtn" class="alt" type="button" disabled>Tenta di indovinare</button>
             <select id="target" class="hidden" aria-label="Avversario da indovinare"></select>
-            <button id="resetBtn" class="alt" type="button">Ripristina tutto</button>
+            <button id="resetBtn" class="alt" type="button">Ripristina tabellone</button>
           </div>
         </div>
       </div>
       <p class="hint" id="hint">Clicca una carta per sceglierla come segreta, poi conferma.</p>
+      <p id="spectatorInfo" class="hint hidden">Modalità spettatore: clicca il nome di un giocatore nell'elenco per ispezionare il suo tabellone e la sua carta segreta.</p>
+      <section id="spectatorView" class="spectator-view hidden" aria-label="Visuale spettatore">
+        <div class="spectator-view-header">
+          <div>
+            <h2 id="spectatorViewTitle">Visuale spettatore</h2>
+            <p id="spectatorViewStatus" class="setting-help">Seleziona un giocatore dall'elenco.</p>
+          </div>
+          <button id="spectatorViewClose" class="alt" type="button">Chiudi visuale</button>
+        </div>
+        <div class="spectator-secret-panel">
+          <div id="spectatorSecretFace" class="spectator-secret-preview"><span class="emo">?</span></div>
+          <div><strong id="spectatorSecretName">Carta segreta non ancora confermata</strong><p id="spectatorSecretHelp" class="setting-help">La carta apparirà qui quando il giocatore la conferma.</p></div>
+        </div>
+        <div id="spectatorBoard" class="spectator-board" aria-label="Tabellone del giocatore selezionato"></div>
+      </section>
       <div class="board" id="board"></div>
     </div>
 
@@ -280,15 +403,96 @@ body:not(.in-game) footer{margin-top:0;padding:24px 16px 12px;align-self:stretch
 </main>
 
 <div id="catModal" class="modal hidden">
-  <div class="modal-box" role="dialog" aria-modal="true" aria-labelledby="catTitle">
-    <h2 id="catTitle">Scegli la categoria</h2>
-    <label class="all-toggle" for="allToggle">
-      <span>Vuoi utilizzare tutti i personaggi presenti nella categoria?</span>
-      <input type="checkbox" id="allToggle" role="switch">
-      <span class="switch" aria-hidden="true"></span>
-    </label>
-    <div id="catGrid" class="cat-grid"></div>
-    <button id="catCancel" class="alt" type="button">Annulla</button>
+  <div class="modal-box cat-settings-box" role="dialog" aria-modal="true" aria-labelledby="catTitle">
+    <h2 id="catTitle" class="cat-modal-title">Impostazioni della partita</h2>
+    <div class="settings-layout">
+      <div class="settings-left">
+        <h3 class="cat-subtitle">Scegli la categoria</h3>
+        <div id="catGrid" class="cat-grid"></div>
+
+        <div id="pokemonGenerations" class="setting-panel hidden" aria-labelledby="pokemonGenerationsTitle">
+          <h3 id="pokemonGenerationsTitle">Seleziona le Generazioni Pokémon</h3>
+          <div class="gen-grid" id="genGrid">
+            <label class="gen-option"><input type="checkbox" value="1" checked> <span>Gen 1 - Kanto (151)</span></label>
+            <label class="gen-option"><input type="checkbox" value="2" checked> <span>Gen 2 - Johto (100)</span></label>
+            <label class="gen-option"><input type="checkbox" value="3" checked> <span>Gen 3 - Hoenn (135)</span></label>
+            <label class="gen-option"><input type="checkbox" value="4" checked> <span>Gen 4 - Sinnoh (107)</span></label>
+            <label class="gen-option"><input type="checkbox" value="5" checked> <span>Gen 5 - Unova (156)</span></label>
+            <label class="gen-option"><input type="checkbox" value="6" checked> <span>Gen 6 - Kalos (72)</span></label>
+            <label class="gen-option"><input type="checkbox" value="7" checked> <span>Gen 7 - Alola (88)</span></label>
+            <label class="gen-option"><input type="checkbox" value="8" checked> <span>Gen 8 - Galar (96)</span></label>
+            <label class="gen-option"><input type="checkbox" value="9" checked> <span>Gen 9 - Paldea (120)</span></label>
+          </div>
+          <div class="gen-actions">
+            <span id="genSelectionCount" class="setting-help">9 generazioni selezionate</span>
+            <button id="toggleAllGens" type="button">Deseleziona tutte</button>
+          </div>
+          <p id="genSetupHelp" class="setting-help">Puoi combinare liberamente più generazioni. Deve rimanerne selezionata almeno una.</p>
+        </div>
+
+        <div id="deckSliderSection" class="setting-panel hidden" aria-labelledby="deckSliderTitle">
+          <h4 id="deckSliderTitle">Quanti personaggi includere nella categoria?</h4>
+          <div class="slider-row">
+            <button id="deckSizeMinus" class="slider-btn" type="button" aria-label="Diminuisci numero di personaggi">−</button>
+            <input id="deckSizeRange" type="range" min="24" max="24" step="1" value="24" aria-label="Numero di personaggi nella partita">
+            <output id="deckSizeValue" class="deck-value" for="deckSizeRange" aria-live="polite">24</output>
+            <button id="deckSizePlus" class="slider-btn" type="button" aria-label="Aumenta numero di personaggi">+</button>
+          </div>
+          <p id="deckSizeHelp" class="setting-help">Seleziona il numero di carte da includere nel mazzo.</p>
+        </div>
+      </div>
+
+      <div class="settings-right">
+        <div class="room-settings">
+          <section class="setting-panel" aria-labelledby="mistakePenaltyTitle">
+            <h3 id="mistakePenaltyTitle">Penalità per Errore sul Tentativo</h3>
+            <div class="penalty-options">
+              <label class="penalty-option"><input type="radio" name="wrongGuessPenalty" value="skip" checked><span><strong>Salta il Turno</strong><br><small>La partita continua e il turno passa al prossimo giocatore.</small></span></label>
+              <label class="penalty-option"><input type="radio" name="wrongGuessPenalty" value="instantLoss"><span><strong>Sconfitta Istantanea</strong><br><small>Un tentativo errato conclude immediatamente la partita.</small></span></label>
+            </div>
+          </section>
+
+          <section class="setting-panel" aria-labelledby="jollyOptionTitle">
+            <h3 id="jollyOptionTitle">Uso del JOLLY</h3>
+            <label class="jolly-option" for="jollyEnabled">
+              <input id="jollyEnabled" type="checkbox" checked>
+              <span><strong>&quot;Mutismo Selettivo&quot;</strong><small>Quando disattivato, il comando JOLLY è nascosto e non utilizzabile da nessun giocatore.</small></span>
+            </label>
+          </section>
+
+          <section class="setting-panel" aria-labelledby="maxPlayersTitle">
+            <h3 id="maxPlayersTitle">Numero massimo di giocatori attivi</h3>
+            <div class="penalty-options">
+              <label class="penalty-option"><input type="radio" name="maxActivePlayers" value="2" checked><span><strong>2 giocatori</strong><br><small>Host compreso</small></span></label>
+              <label class="penalty-option"><input type="radio" name="maxActivePlayers" value="3"><span><strong>3 giocatori</strong><br><small>Host compreso</small></span></label>
+            </div>
+          </section>
+
+          <section class="setting-panel" aria-labelledby="spectatorsOptionTitle">
+            <h3 id="spectatorsOptionTitle">Spettatori</h3>
+            <label class="jolly-option" for="allowSpectators">
+              <input id="allowSpectators" type="checkbox" checked>
+              <span><strong>Permetti Spettatori</strong><small>La stanza può ospitare fino a 5 utenti complessivi; gli utenti oltre il limite dei giocatori attivi entrano come spettatori.</small></span>
+            </label>
+          </section>
+        </div>
+      </div>
+    </div>
+    <p id="catSetupMsg" role="status" aria-live="polite"></p>
+    <div class="cat-modal-actions">
+      <button id="catCancel" class="alt" type="button">Annulla</button>
+      <button id="catCreate" type="button" disabled>Crea Stanza</button>
+    </div>
+  </div>
+</div>
+
+<div id="spectatorNoticeModal" class="modal hidden">
+  <div class="modal-box info-box spectator-notice-box" role="dialog" aria-modal="true" aria-labelledby="spectatorNoticeTitle">
+    <button id="spectatorNoticeClose" class="modal-x" type="button" aria-label="Chiudi avviso">&#10005;</button>
+    <h2 id="spectatorNoticeTitle">Sei entrato come Spettatore</h2>
+    <p>La stanza è piena e, in base alle impostazioni della partita, sei entrato come Spettatore.</p>
+    <p>Puoi seguire i turni, leggere la chat e monitorare gli scarti. Per aprire la visuale regia, clicca sul nome di un giocatore nell'elenco: vedrai il suo tabellone aggiornato e la sua carta segreta. Non puoi scegliere carte, fare tentativi o partecipare ai turni.</p>
+    <button id="spectatorNoticeOk" type="button">Ho capito</button>
   </div>
 </div>
 
@@ -307,10 +511,21 @@ body:not(.in-game) footer{margin-top:0;padding:24px 16px 12px;align-self:stretch
   <div class="modal-box info-box" role="dialog" aria-modal="true" aria-label="Regole">
     <button class="modal-x" type="button" aria-label="Chiudi">&#10005;</button>
     <ol class="rules">
-      <li>Solo domande estetiche (in teoria, a noi non ce ne frega).</li>
-      <li>Si può rispondere solo con SÌ o NO.</li>
-      <li>Abbiamo un JOLLY &quot;Mutismo selettivo&quot;: ad una domanda possiamo evitare di rispondere.</li>
-      <li>Non si può ripetere una domanda già fatta.</li>
+      <li>
+        <strong>Scopo del gioco:</strong> Indovinare la carta segreta dell'avversario prima che lui indovini la tua, procedendo per eliminazione.
+      </li>
+      <li>
+        <strong>Le Domande:</strong> Ad ogni turno puoi fare una sola domanda sulle caratteristiche visive o concettuali dei personaggi. Non è consentito ripetere una domanda già formulata nella stessa partita.
+      </li>
+      <li>
+        <strong>Le Risposte:</strong> Si può rispondere esclusivamente con <strong>SÌ</strong> oppure <strong>NO</strong>.
+      </li>
+      <li>
+        <strong>Jolly (&quot;Mutismo Selettivo&quot;):</strong> Ciascun giocatore ha a disposizione <strong>1 solo Jolly per partita</strong>: utilizzandolo, può rifiutarsi di rispondere ad una domanda avversaria.
+      </li>
+      <li>
+        <strong>Tentativo di Vittoria:</strong> Quando ritieni di aver capito l'identità dell'avversario, usa il tasto <em>"Tenta di indovinare"</em>. In base alle impostazioni della stanza, un errore può farti saltare il turno oppure terminare subito la partita.
+      </li>
     </ol>
   </div>
 </div>
@@ -371,11 +586,32 @@ var CATEGORIES = [
   {
     name: 'Pokémon',
     folder: 'img/pokémon',
-    images: ['Bulbasaur.png']
+    images: ['abomasnow.webp', 'abra.webp', 'absol.webp', 'accelgor.webp', 'aegislash-shield.webp', 'aerodactyl.webp', 'aggron.webp', 'aipom.webp', 'alakazam.webp', 'alcremie.webp', 'alomomola.webp', 'altaria.webp', 'amaura.webp', 'ambipom.webp', 'amoonguss.webp', 'ampharos.webp', 'annihilape.webp', 'anorith.webp', 'appletun.webp', 'applin.webp', 'araquanid.webp', 'arbok.webp', 'arboliva.webp', 'arcanine.webp', 'arceus.webp', 'archaludon.webp', 'archen.webp', 'archeops.webp', 'arctibax.webp', 'arctovish.webp', 'arctozolt.webp', 'ariados.webp', 'armaldo.webp', 'armarouge.webp', 'aromatisse.webp', 'aron.webp', 'arrokuda.webp', 'articuno.webp', 'audino.webp', 'aurorus.webp', 'avalugg.webp', 'axew.webp', 'azelf.webp', 'azumarill.webp', 'azurill.webp', 'bagon.webp', 'baltoy.webp', 'banette.webp', 'barbaracle.webp', 'barboach.webp', 'barraskewda.webp', 'basculegion-male.webp', 'basculin-red-striped.webp', 'bastiodon.webp', 'baxcalibur.webp', 'bayleef.webp', 'beartic.webp', 'beautifly.webp', 'beedrill.webp', 'beheeyem.webp', 'beldum.webp', 'bellibolt.webp', 'bellossom.webp', 'bellsprout.webp', 'bergmite.webp', 'bewear.webp', 'bibarel.webp', 'bidoof.webp', 'binacle.webp', 'bisharp.webp', 'blacephalon.webp', 'blastoise.webp', 'blaziken.webp', 'blipbug.webp', 'blissey.webp', 'blitzle.webp', 'boldore.webp', 'boltund.webp', 'bombirdier.webp', 'bonsly.webp', 'bouffalant.webp', 'bounsweet.webp', 'braixen.webp', 'brambleghast.webp', 'bramblin.webp', 'braviary.webp', 'breloom.webp', 'brionne.webp', 'bronzong.webp', 'bronzor.webp', 'brute-bonnet.webp', 'bruxish.webp', 'budew.webp', 'buizel.webp', 'bulbasaur.webp', 'buneary.webp', 'bunnelby.webp', 'burmy.webp', 'butterfree.webp', 'buzzwole.webp', 'cacnea.webp', 'cacturne.webp', 'calyrex.webp', 'camerupt.webp', 'capsakid.webp', 'carbink.webp', 'carkol.webp', 'carnivine.webp', 'carracosta.webp', 'carvanha.webp', 'cascoon.webp', 'castform.webp', 'caterpie.webp', 'celebi.webp', 'celesteela.webp', 'centiskorch.webp', 'ceruledge.webp', 'cetitan.webp', 'cetoddle.webp', 'chandelure.webp', 'chansey.webp', 'charcadet.webp', 'charizard.webp', 'charjabug.webp', 'charmander.webp', 'charmeleon.webp', 'chatot.webp', 'cherrim.webp', 'cherubi.webp', 'chesnaught.webp', 'chespin.webp', 'chewtle.webp', 'chien-pao.webp', 'chikorita.webp', 'chimchar.webp', 'chimecho.webp', 'chinchou.webp', 'chingling.webp', 'chi-yu.webp', 'cinccino.webp', 'cinderace.webp', 'clamperl.webp', 'clauncher.webp', 'clawitzer.webp', 'claydol.webp', 'clefable.webp', 'clefairy.webp', 'cleffa.webp', 'clobbopus.webp', 'clodsire.webp', 'cloyster.webp', 'coalossal.webp', 'cobalion.webp', 'cofagrigus.webp', 'combee.webp', 'combusken.webp', 'comfey.webp', 'conkeldurr.webp', 'copperajah.webp', 'corphish.webp', 'corsola.webp', 'corviknight.webp', 'corvisquire.webp', 'cosmoem.webp', 'cosmog.webp', 'cottonee.webp', 'crabominable.webp', 'crabrawler.webp', 'cradily.webp', 'cramorant.webp', 'cranidos.webp', 'crawdaunt.webp', 'cresselia.webp', 'croagunk.webp', 'crobat.webp', 'crocalor.webp', 'croconaw.webp', 'crustle.webp', 'cryogonal.webp', 'cubchoo.webp', 'cubone.webp', 'cufant.webp', 'cursola.webp', 'cutiefly.webp', 'cyclizar.webp', 'cyndaquil.webp', 'dachsbun.webp', 'darkrai.webp', 'darmanitan-standard.webp', 'dartrix.webp', 'darumaka.webp', 'decidueye.webp', 'dedenne.webp', 'deerling.webp', 'deino.webp', 'delcatty.webp', 'delibird.webp', 'delphox.webp', 'deoxys-normal.webp', 'dewgong.webp', 'dewott.webp', 'dewpider.webp', 'dhelmise.webp', 'dialga.webp', 'diancie.webp', 'diggersby.webp', 'diglett.webp', 'dipplin.webp', 'ditto.webp', 'dodrio.webp', 'doduo.webp', 'dolliv.webp', 'dondozo.webp', 'donphan.webp', 'dottler.webp', 'doublade.webp', 'dracovish.webp', 'dracozolt.webp', 'dragalge.webp', 'dragapult.webp', 'dragonair.webp', 'dragonite.webp', 'drakloak.webp', 'drampa.webp', 'drapion.webp', 'dratini.webp', 'drednaw.webp', 'dreepy.webp', 'drifblim.webp', 'drifloon.webp', 'drilbur.webp', 'drizzile.webp', 'drowzee.webp', 'druddigon.webp', 'dubwool.webp', 'ducklett.webp', 'dudunsparce-two-segment.webp', 'dugtrio.webp', 'dunsparce.webp', 'duosion.webp', 'duraludon.webp', 'durant.webp', 'dusclops.webp', 'dusknoir.webp', 'duskull.webp', 'dustox.webp', 'dwebble.webp', 'eelektrik.webp', 'eelektross.webp', 'eevee.webp', 'eiscue-ice.webp', 'ekans.webp', 'eldegoss.webp', 'electabuzz.webp', 'electivire.webp', 'electrike.webp', 'electrode.webp', 'elekid.webp', 'elgyem.webp', 'emboar.webp', 'emolga.webp', 'empoleon.webp', 'enamorus-incarnate.webp', 'entei.webp', 'escavalier.webp', 'espathra.webp', 'espeon.webp', 'espurr.webp', 'eternatus.webp', 'excadrill.webp', 'exeggcute.webp', 'exeggutor.webp', 'exploud.webp', 'falinks.webp', 'farfetchd.webp', 'farigiraf.webp', 'fearow.webp', 'feebas.webp', 'fennekin.webp', 'feraligatr.webp', 'ferroseed.webp', 'ferrothorn.webp', 'fezandipiti.webp', 'fidough.webp', 'finizen.webp', 'finneon.webp', 'flaaffy.webp', 'flabebe.webp', 'flamigo.webp', 'flapple.webp', 'flareon.webp', 'fletchinder.webp', 'fletchling.webp', 'flittle.webp', 'floatzel.webp', 'floette.webp', 'floragato.webp', 'florges.webp', 'flutter-mane.webp', 'flygon.webp', 'fomantis.webp', 'foongus.webp', 'forretress.webp', 'fraxure.webp', 'frigibax.webp', 'frillish-male.webp', 'froakie.webp', 'frogadier.webp', 'froslass.webp', 'frosmoth.webp', 'fuecoco.webp', 'furfrou.webp', 'furret.webp', 'gabite.webp', 'gallade.webp', 'galvantula.webp', 'garbodor.webp', 'garchomp.webp', 'gardevoir.webp', 'garganacl.webp', 'gastly.webp', 'gastrodon.webp', 'genesect.webp', 'gengar.webp', 'geodude.webp', 'gholdengo.webp', 'gible.webp', 'gigalith.webp', 'gimmighoul.webp', 'girafarig.webp', 'giratina-altered.webp', 'glaceon.webp', 'glalie.webp', 'glameow.webp', 'glastrier.webp', 'gligar.webp', 'glimmet.webp', 'glimmora.webp', 'gliscor.webp', 'gloom.webp', 'gogoat.webp', 'golbat.webp', 'goldeen.webp', 'golduck.webp', 'golem.webp', 'golett.webp', 'golisopod.webp', 'golurk.webp', 'goodra.webp', 'goomy.webp', 'gorebyss.webp', 'gossifleur.webp', 'gothita.webp', 'gothitelle.webp', 'gothorita.webp', 'gouging-fire.webp', 'gourgeist-average.webp', 'grafaiai.webp', 'granbull.webp', 'grapploct.webp', 'graveler.webp', 'great-tusk.webp', 'greavard.webp', 'greedent.webp', 'greninja.webp', 'grimer.webp', 'grimmsnarl.webp', 'grookey.webp', 'grotle.webp', 'groudon.webp', 'grovyle.webp', 'growlithe.webp', 'grubbin.webp', 'grumpig.webp', 'gulpin.webp', 'gumshoos.webp', 'gurdurr.webp', 'guzzlord.webp', 'gyarados.webp', 'hakamo-o.webp', 'happiny.webp', 'hariyama.webp', 'hatenna.webp', 'hatterene.webp', 'hattrem.webp', 'haunter.webp', 'hawlucha.webp', 'haxorus.webp', 'heatmor.webp', 'heatran.webp', 'heliolisk.webp', 'helioptile.webp', 'heracross.webp', 'herdier.webp', 'hippopotas.webp', 'hippowdon.webp', 'hitmonchan.webp', 'hitmonlee.webp', 'hitmontop.webp', 'honchkrow.webp', 'honedge.webp', 'ho-oh.webp', 'hoopa.webp', 'hoothoot.webp', 'hoppip.webp', 'horsea.webp', 'houndoom.webp', 'houndour.webp', 'houndstone.webp', 'huntail.webp', 'hydrapple.webp', 'hydreigon.webp', 'hypno.webp', 'igglybuff.webp', 'illumise.webp', 'impidimp.webp', 'incineroar.webp', 'indeedee-male.webp', 'infernape.webp', 'inkay.webp', 'inteleon.webp', 'iron-boulder.webp', 'iron-bundle.webp', 'iron-crown.webp', 'iron-hands.webp', 'iron-jugulis.webp', 'iron-leaves.webp', 'iron-moth.webp', 'iron-thorns.webp', 'iron-treads.webp', 'iron-valiant.webp', 'ivysaur.webp', 'jangmo-o.webp', 'jellicent-male.webp', 'jigglypuff.webp', 'jirachi.webp', 'jolteon.webp', 'joltik.webp', 'jumpluff.webp', 'jynx.webp', 'kabuto.webp', 'kabutops.webp', 'kadabra.webp', 'kakuna.webp', 'kangaskhan.webp', 'karrablast.webp', 'kartana.webp', 'kecleon.webp', 'keldeo-ordinary.webp', 'kilowattrel.webp', 'kingambit.webp', 'kingdra.webp', 'kingler.webp', 'kirlia.webp', 'klang.webp', 'klawf.webp', 'kleavor.webp', 'klefki.webp', 'klink.webp', 'klinklang.webp', 'koffing.webp', 'komala.webp', 'kommo-o.webp', 'koraidon.webp', 'krabby.webp', 'kricketot.webp', 'kricketune.webp', 'krokorok.webp', 'krookodile.webp', 'kubfu.webp', 'kyogre.webp', 'kyurem.webp', 'lairon.webp', 'lampent.webp', 'landorus-incarnate.webp', 'lanturn.webp', 'lapras.webp', 'larvesta.webp', 'larvitar.webp', 'latias.webp', 'latios.webp', 'leafeon.webp', 'leavanny.webp', 'lechonk.webp', 'ledian.webp', 'ledyba.webp', 'lickilicky.webp', 'lickitung.webp', 'liepard.webp', 'lileep.webp', 'lilligant.webp', 'lillipup.webp', 'linoone.webp', 'litleo.webp', 'litten.webp', 'litwick.webp', 'lokix.webp', 'lombre.webp', 'lopunny.webp', 'lotad.webp', 'loudred.webp', 'lucario.webp', 'ludicolo.webp', 'lugia.webp', 'lumineon.webp', 'lunala.webp', 'lunatone.webp', 'lurantis.webp', 'luvdisc.webp', 'luxio.webp', 'luxray.webp', 'lycanroc-midday.webp', 'mabosstiff.webp', 'machamp.webp', 'machoke.webp', 'machop.webp', 'magby.webp', 'magcargo.webp', 'magearna.webp', 'magikarp.webp', 'magmar.webp', 'magmortar.webp', 'magnemite.webp', 'magneton.webp', 'magnezone.webp', 'makuhita.webp', 'malamar.webp', 'mamoswine.webp', 'manaphy.webp', 'mandibuzz.webp', 'manectric.webp', 'mankey.webp', 'mantine.webp', 'mantyke.webp', 'maractus.webp', 'mareanie.webp', 'mareep.webp', 'marill.webp', 'marowak.webp', 'marshadow.webp', 'marshtomp.webp', 'maschiff.webp', 'masquerain.webp', 'maushold-family-of-four.webp', 'mawile.webp', 'medicham.webp', 'meditite.webp', 'meganium.webp', 'melmetal.webp', 'meloetta-aria.webp', 'meltan.webp', 'meowscarada.webp', 'meowstic-male.webp', 'meowth.webp', 'mesprit.webp', 'metagross.webp', 'metang.webp', 'metapod.webp', 'mew.webp', 'mewtwo.webp', 'mienfoo.webp', 'mienshao.webp', 'mightyena.webp', 'milcery.webp', 'milotic.webp', 'miltank.webp', 'mime-jr.webp', 'mimikyu-disguised.webp', 'minccino.webp', 'minior-red-meteor.webp', 'minun.webp', 'miraidon.webp', 'misdreavus.webp', 'mismagius.webp', 'moltres.webp', 'monferno.webp', 'morelull.webp', 'morgrem.webp', 'morpeko-full-belly.webp', 'mothim.webp', 'mr-mime.webp', 'mr-rime.webp', 'mudbray.webp', 'mudkip.webp', 'mudsdale.webp', 'muk.webp', 'munchlax.webp', 'munkidori.webp', 'munna.webp', 'murkrow.webp', 'musharna.webp', 'nacli.webp', 'naclstack.webp', 'naganadel.webp', 'natu.webp', 'necrozma.webp', 'nickit.webp', 'nidoking.webp', 'nidoqueen.webp', 'nidoran-f.webp', 'nidoran-m.webp', 'nidorina.webp', 'nidorino.webp', 'nihilego.webp', 'nincada.webp', 'ninetales.webp', 'ninjask.webp', 'noctowl.webp', 'noibat.webp', 'noivern.webp', 'nosepass.webp', 'numel.webp', 'nuzleaf.webp', 'nymble.webp', 'obstagoon.webp', 'octillery.webp', 'oddish.webp', 'ogerpon.webp', 'oinkologne-male.webp', 'okidogi.webp', 'omanyte.webp', 'omastar.webp', 'onix.webp', 'oranguru.webp', 'orbeetle.webp', 'oricorio-baile.webp', 'orthworm.webp', 'oshawott.webp', 'overqwil.webp', 'pachirisu.webp', 'palafin-zero.webp', 'palkia.webp', 'palossand.webp', 'palpitoad.webp', 'pancham.webp', 'pangoro.webp', 'panpour.webp', 'pansage.webp', 'pansear.webp', 'paras.webp', 'parasect.webp', 'passimian.webp', 'patrat.webp', 'pawmi.webp', 'pawmo.webp', 'pawmot.webp', 'pawniard.webp', 'pecharunt.webp', 'pelipper.webp', 'perrserker.webp', 'persian.webp', 'petilil.webp', 'phanpy.webp', 'phantump.webp', 'pheromosa.webp', 'phione.webp', 'pichu.webp', 'pidgeot.webp', 'pidgeotto.webp', 'pidgey.webp', 'pidove.webp', 'pignite.webp', 'pikachu.webp', 'pikipek.webp', 'piloswine.webp', 'pincurchin.webp', 'pineco.webp', 'pinsir.webp', 'piplup.webp', 'plusle.webp', 'poipole.webp', 'politoed.webp', 'poliwag.webp', 'poliwhirl.webp', 'poliwrath.webp', 'poltchageist.webp', 'polteageist.webp', 'ponyta.webp', 'poochyena.webp', 'popplio.webp', 'porygon.webp', 'porygon2.webp', 'porygon-z.webp', 'primarina.webp', 'primeape.webp', 'prinplup.webp', 'probopass.webp', 'psyduck.webp', 'pumpkaboo-average.webp', 'pupitar.webp', 'purrloin.webp', 'purugly.webp', 'pyroar-male.webp', 'pyukumuku.webp', 'quagsire.webp', 'quaquaval.webp', 'quaxly.webp', 'quaxwell.webp', 'quilava.webp', 'quilladin.webp', 'qwilfish.webp', 'raboot.webp', 'rabsca.webp', 'raging-bolt.webp', 'raichu.webp', 'raikou.webp', 'ralts.webp', 'rampardos.webp', 'rapidash.webp', 'raticate.webp', 'rattata.webp', 'rayquaza.webp', 'regice.webp', 'regidrago.webp', 'regieleki.webp', 'regigigas.webp', 'regirock.webp', 'registeel.webp', 'relicanth.webp', 'rellor.webp', 'remoraid.webp', 'reshiram.webp', 'reuniclus.webp', 'revavroom.webp', 'rhydon.webp', 'rhyhorn.webp', 'rhyperior.webp', 'ribombee.webp', 'rillaboom.webp', 'riolu.webp', 'roaring-moon.webp', 'rockruff.webp', 'roggenrola.webp', 'rolycoly.webp', 'rookidee.webp', 'roselia.webp', 'roserade.webp', 'rotom.webp', 'rowlet.webp', 'rufflet.webp', 'runerigus.webp', 'sableye.webp', 'salamence.webp', 'salandit.webp', 'salazzle.webp', 'samurott.webp', 'sandaconda.webp', 'sandile.webp', 'sandshrew.webp', 'sandslash.webp', 'sandygast.webp', 'sandy-shocks.webp', 'sawk.webp', 'sawsbuck.webp', 'scatterbug.webp', 'sceptile.webp', 'scizor.webp', 'scolipede.webp', 'scorbunny.webp', 'scovillain.webp', 'scrafty.webp', 'scraggy.webp', 'scream-tail.webp', 'scyther.webp', 'seadra.webp', 'seaking.webp', 'sealeo.webp', 'seedot.webp', 'seel.webp', 'seismitoad.webp', 'sentret.webp', 'serperior.webp', 'servine.webp', 'seviper.webp', 'sewaddle.webp', 'sharpedo.webp', 'shaymin-land.webp', 'shedinja.webp', 'shelgon.webp', 'shellder.webp', 'shellos.webp', 'shelmet.webp', 'shieldon.webp', 'shiftry.webp', 'shiinotic.webp', 'shinx.webp', 'shroodle.webp', 'shroomish.webp', 'shuckle.webp', 'shuppet.webp', 'sigilyph.webp', 'silcoon.webp', 'silicobra.webp', 'silvally.webp', 'simipour.webp', 'simisage.webp', 'simisear.webp', 'sinistcha.webp', 'sinistea.webp', 'sirfetchd.webp', 'sizzlipede.webp', 'skarmory.webp', 'skeledirge.webp', 'skiddo.webp', 'skiploom.webp', 'skitty.webp', 'skorupi.webp', 'skrelp.webp', 'skuntank.webp', 'skwovet.webp', 'slaking.webp', 'slakoth.webp', 'sliggoo.webp', 'slither-wing.webp', 'slowbro.webp', 'slowking.webp', 'slowpoke.webp', 'slugma.webp', 'slurpuff.webp', 'smeargle.webp', 'smoliv.webp', 'smoochum.webp', 'sneasel.webp', 'sneasler.webp', 'snivy.webp', 'snom.webp', 'snorlax.webp', 'snorunt.webp', 'snover.webp', 'snubbull.webp', 'sobble.webp', 'solgaleo.webp', 'solosis.webp', 'solrock.webp', 'spearow.webp', 'spectrier.webp', 'spewpa.webp', 'spheal.webp', 'spidops.webp', 'spinarak.webp', 'spinda.webp', 'spiritomb.webp', 'spoink.webp', 'sprigatito.webp', 'spritzee.webp', 'squawkabilly-green-plumage.webp', 'squirtle.webp', 'stakataka.webp', 'stantler.webp', 'staraptor.webp', 'staravia.webp', 'starly.webp', 'starmie.webp', 'staryu.webp', 'steelix.webp', 'steenee.webp', 'stonjourner.webp', 'stoutland.webp', 'stufful.webp', 'stunfisk.webp', 'stunky.webp', 'sudowoodo.webp', 'suicune.webp', 'sunflora.webp', 'sunkern.webp', 'surskit.webp', 'swablu.webp', 'swadloon.webp', 'swalot.webp', 'swampert.webp', 'swanna.webp', 'swellow.webp', 'swinub.webp', 'swirlix.webp', 'swoobat.webp', 'sylveon.webp', 'tadbulb.webp', 'taillow.webp', 'talonflame.webp', 'tandemaus.webp', 'tangela.webp', 'tangrowth.webp', 'tapu-bulu.webp', 'tapu-fini.webp', 'tapu-koko.webp', 'tapu-lele.webp', 'tarountula.webp', 'tatsugiri-curly.webp', 'tauros.webp', 'teddiursa.webp', 'tentacool.webp', 'tentacruel.webp', 'tepig.webp', 'terapagos.webp', 'terrakion.webp', 'thievul.webp', 'throh.webp', 'thundurus-incarnate.webp', 'thwackey.webp', 'timburr.webp', 'ting-lu.webp', 'tinkatink.webp', 'tinkaton.webp', 'tinkatuff.webp', 'tirtouga.webp', 'toedscool.webp', 'toedscruel.webp', 'togedemaru.webp', 'togekiss.webp', 'togepi.webp', 'togetic.webp', 'torchic.webp', 'torkoal.webp', 'tornadus-incarnate.webp', 'torracat.webp', 'torterra.webp', 'totodile.webp', 'toucannon.webp', 'toxapex.webp', 'toxel.webp', 'toxicroak.webp', 'toxtricity-amped.webp', 'tranquill.webp', 'trapinch.webp', 'treecko.webp', 'trevenant.webp', 'tropius.webp', 'trubbish.webp', 'trumbeak.webp', 'tsareena.webp', 'turtonator.webp', 'turtwig.webp', 'tympole.webp', 'tynamo.webp', 'type-null.webp', 'typhlosion.webp', 'tyranitar.webp', 'tyrantrum.webp', 'tyrogue.webp', 'tyrunt.webp', 'umbreon.webp', 'unfezant.webp', 'unown.webp', 'ursaluna.webp', 'ursaring.webp', 'urshifu-single-strike.webp', 'uxie.webp', 'vanillish.webp', 'vanillite.webp', 'vanilluxe.webp', 'vaporeon.webp', 'varoom.webp', 'veluza.webp', 'venipede.webp', 'venomoth.webp', 'venonat.webp', 'venusaur.webp', 'vespiquen.webp', 'vibrava.webp', 'victini.webp', 'victreebel.webp', 'vigoroth.webp', 'vikavolt.webp', 'vileplume.webp', 'virizion.webp', 'vivillon.webp', 'volbeat.webp', 'volcanion.webp', 'volcarona.webp', 'voltorb.webp', 'vullaby.webp', 'vulpix.webp', 'wailmer.webp', 'wailord.webp', 'walking-wake.webp', 'walrein.webp', 'wartortle.webp', 'watchog.webp', 'wattrel.webp', 'weavile.webp', 'weedle.webp', 'weepinbell.webp', 'weezing.webp', 'whimsicott.webp', 'whirlipede.webp', 'whiscash.webp', 'whismur.webp', 'wigglytuff.webp', 'wiglett.webp', 'wimpod.webp', 'wingull.webp', 'wishiwashi-solo.webp', 'wobbuffet.webp', 'wo-chien.webp', 'woobat.webp', 'wooloo.webp', 'wooper.webp', 'wormadam-plant.webp', 'wugtrio.webp', 'wurmple.webp', 'wynaut.webp', 'wyrdeer.webp', 'xatu.webp', 'xerneas.webp', 'xurkitree.webp', 'yamask.webp', 'yamper.webp', 'yanma.webp', 'yanmega.webp', 'yungoos.webp', 'yveltal.webp', 'zacian.webp', 'zamazenta.webp', 'zangoose.webp', 'zapdos.webp', 'zarude.webp', 'zebstrika.webp', 'zekrom.webp', 'zeraora.webp', 'zigzagoon.webp', 'zoroark.webp', 'zorua.webp', 'zubat.webp', 'zweilous.webp', 'zygarde-50.webp']
   }
 ];
 var MIN_CARDS = 20;
-var MAX_CARDS = 24;
+var DEFAULT_DECK_SIZE = 24;
+var MIX_POKEMON_LIMIT = 6;
+var MIX_CATEGORY = {name:'Mix', special:'mix', folder:'', images:[]};
+var POKEMON_GENERATION_BY_NAME = null;
+var POKEMON_GENERATION_LOAD = null;
+var POKEMON_GENERATION_CACHE_KEY = 'indovinachi-pokemon-generations-v1';
+var POKEMON_DEX_BY_NAME = null;
+var POKEMON_DEX_LOAD = null;
+var POKEMON_DEX_CACHE_KEY = 'indovinachi-pokemon-national-dex-v1';
+var ALL_POKEMON_GENERATIONS = [1,2,3,4,5,6,7,8,9];
+var selectedPokemonGenerations = ALL_POKEMON_GENERATIONS.slice();
+var selectedCategory = null;
+var selectedDeckSize = DEFAULT_DECK_SIZE;
+var roomConfig = {
+  wrongGuessPenalty:'skip',
+  jollyEnabled:true,
+  maxPlayers:2,
+  allowSpectators:true,
+  deckSize:DEFAULT_DECK_SIZE,
+  category:'',
+  pokemonGenerations:ALL_POKEMON_GENERATIONS.slice()
+};
 var EMOJI_POOL = ['🎮','😎','🎬','🚀','⭐','🎧','🔥','🎯'];
 
 function seedUrl(name){ return 'https://api.dicebear.com/9.x/fun-emoji/svg?seed=' + encodeURIComponent(name); }
@@ -410,6 +646,236 @@ function shuffle(a){
     var t = a[i]; a[i] = a[j]; a[j] = t;
   }
   return a;
+}
+function normalizePokemonKey(value){
+  return String(value || '').toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+    .replace(/[^a-z0-9]/g, '');
+}
+function parseCSVRow(line){
+  var out = [], value = '', quoted = false;
+  for(var i = 0; i < line.length; i++){
+    var ch = line.charAt(i);
+    if(ch === '"'){
+      if(quoted && line.charAt(i + 1) === '"'){ value += '"'; i++; }
+      else { quoted = !quoted; }
+    } else if(ch === ',' && !quoted){ out.push(value); value = ''; }
+    else { value += ch; }
+  }
+  out.push(value);
+  return out;
+}
+function addPokemonGenerationAlias(map, value, generation, onlyIfMissing){
+  var key = normalizePokemonKey(value);
+  if(!key){ return; }
+  if(!onlyIfMissing || !Object.prototype.hasOwnProperty.call(map, key)){ map[key] = generation; }
+}
+function loadPokemonGenerationMap(){
+  if(POKEMON_GENERATION_BY_NAME){ return Promise.resolve(POKEMON_GENERATION_BY_NAME); }
+  if(POKEMON_GENERATION_LOAD){ return POKEMON_GENERATION_LOAD; }
+  try{
+    var cached = JSON.parse(localStorage.getItem(POKEMON_GENERATION_CACHE_KEY) || 'null');
+    if(cached && Object.keys(cached).length >= 900){
+      POKEMON_GENERATION_BY_NAME = cached;
+      return Promise.resolve(cached);
+    }
+  }catch(e){}
+  POKEMON_GENERATION_LOAD = Promise.all(ALL_POKEMON_GENERATIONS.map(function(gen){
+    var url = 'https://raw.githubusercontent.com/lgreski/pokemonData/master/gen' + String(gen).padStart(2, '0') + '.csv';
+    return fetch(url).then(function(response){
+      if(!response.ok){ throw new Error('HTTP ' + response.status + ' per la generazione ' + gen); }
+      return response.text();
+    }).then(function(csv){ return {generation:gen, csv:csv}; });
+  })).then(function(files){
+    var map = {};
+    /* I file sono ordinati per generazione. Il nome base conserva la generazione di debutto;
+       l'alias nome-form permette di riconoscere anche eventuali file di forme regionali. */
+    files.forEach(function(file){
+      var rows = file.csv.replace(/^\uFEFF/, '').split(/\r?\n/).filter(function(line){ return line.trim() !== ''; });
+      if(!rows.length){ return; }
+      var headers = parseCSVRow(rows.shift()).map(function(h){ return h.trim().toLowerCase(); });
+      var nameIndex = headers.indexOf('name');
+      var formIndex = headers.indexOf('form');
+      if(nameIndex < 0){ throw new Error('Colonna Name assente nel catalogo Pokémon.'); }
+      rows.forEach(function(line){
+        var cols = parseCSVRow(line);
+        var name = (cols[nameIndex] || '').trim();
+        var form = formIndex >= 0 ? (cols[formIndex] || '').trim() : '';
+        if(!name){ return; }
+        addPokemonGenerationAlias(map, name, file.generation, true);
+        if(form){ addPokemonGenerationAlias(map, name + '-' + form, file.generation, false); }
+      });
+    });
+    if(Object.keys(map).length < 900){ throw new Error('Il catalogo Pokémon ricevuto è incompleto.'); }
+    POKEMON_GENERATION_BY_NAME = map;
+    try{ localStorage.setItem(POKEMON_GENERATION_CACHE_KEY, JSON.stringify(map)); }catch(e){}
+    POKEMON_GENERATION_LOAD = null;
+    return map;
+  }).catch(function(error){
+    POKEMON_GENERATION_LOAD = null;
+    throw error;
+  });
+  return POKEMON_GENERATION_LOAD;
+}
+function loadPokemonDexMap(){
+  if(POKEMON_DEX_BY_NAME){ return Promise.resolve(POKEMON_DEX_BY_NAME); }
+  if(POKEMON_DEX_LOAD){ return POKEMON_DEX_LOAD; }
+  try{
+    var cached = JSON.parse(localStorage.getItem(POKEMON_DEX_CACHE_KEY) || 'null');
+    if(cached && Object.keys(cached).length >= 900){
+      POKEMON_DEX_BY_NAME = cached;
+      return Promise.resolve(cached);
+    }
+  }catch(e){}
+  POKEMON_DEX_LOAD = fetch('https://pokeapi.co/api/v2/pokemon-species?limit=2000')
+    .then(function(response){
+      if(!response.ok){ throw new Error('HTTP ' + response.status + ' nel catalogo Pokédex'); }
+      return response.json();
+    })
+    .then(function(data){
+      var map = {};
+      (data.results || []).forEach(function(entry){
+        var match = /\/(\d+)\/?$/.exec(entry.url || '');
+        if(match){ addPokemonDexAlias(map, entry.name, Number(match[1])); }
+      });
+      if(Object.keys(map).length < 900){ throw new Error('Il catalogo Pokédex ricevuto è incompleto.'); }
+      POKEMON_DEX_BY_NAME = map;
+      try{ localStorage.setItem(POKEMON_DEX_CACHE_KEY, JSON.stringify(map)); }catch(e){}
+      POKEMON_DEX_LOAD = null;
+      return map;
+    })
+    .catch(function(error){ POKEMON_DEX_LOAD = null; throw error; });
+  return POKEMON_DEX_LOAD;
+}
+function addPokemonDexAlias(map, value, number){
+  var key = normalizePokemonKey(value);
+  if(key && !Object.prototype.hasOwnProperty.call(map, key)){ map[key] = number; }
+}
+function pokemonDexNumber(name){
+  if(!POKEMON_DEX_BY_NAME){ return Number.MAX_SAFE_INTEGER; }
+  var stem = String(name || '').replace(/\.[^.]+$/, '').trim();
+  var key = normalizePokemonKey(stem);
+  if(POKEMON_DEX_BY_NAME[key]){ return Number(POKEMON_DEX_BY_NAME[key]); }
+  var parts = stem.split('-');
+  while(parts.length > 1){
+    parts.pop();
+    key = normalizePokemonKey(parts.join('-'));
+    if(POKEMON_DEX_BY_NAME[key]){ return Number(POKEMON_DEX_BY_NAME[key]); }
+  }
+  return Number.MAX_SAFE_INTEGER;
+}
+function sortPokemonByDex(list){
+  return list.slice().sort(function(a, b){
+    var aNo = pokemonDexNumber(a.name), bNo = pokemonDexNumber(b.name);
+    if(aNo !== bNo){ return aNo - bNo; }
+    return a.name.localeCompare(b.name, 'it');
+  });
+}
+function interleaveMixPreservingDex(nonPokemon, pokemon){
+  var other = nonPokemon.slice(), dex = sortPokemonByDex(pokemon), out = [];
+  while(other.length || dex.length){
+    if(!other.length){ out.push(dex.shift()); }
+    else if(!dex.length){ out.push(other.shift()); }
+    else if(Math.random() < (dex.length / (dex.length + other.length))){ out.push(dex.shift()); }
+    else { out.push(other.shift()); }
+  }
+  return out;
+}
+
+function generationForPokemonName(name){
+  if(!POKEMON_GENERATION_BY_NAME){ return 0; }
+  var stem = String(name || '').replace(/\.[^.]+$/, '').trim();
+  var key = normalizePokemonKey(stem);
+  if(POKEMON_GENERATION_BY_NAME[key]){ return POKEMON_GENERATION_BY_NAME[key]; }
+  /* Gestisce suffissi di forma presenti nei nomi dei file (es. -male, -shield, -50). */
+  var parts = stem.split('-');
+  while(parts.length > 1){
+    parts.pop();
+    key = normalizePokemonKey(parts.join('-'));
+    if(POKEMON_GENERATION_BY_NAME[key]){ return POKEMON_GENERATION_BY_NAME[key]; }
+  }
+  return 0;
+}
+function allNonPokemonCharacters(){
+  var list = [];
+  CATEGORIES.forEach(function(cat){
+    if(cat.name === 'Pokémon'){ return; }
+    list = list.concat(buildCharacters(cat).map(function(ch){
+      var copy = Object.assign({}, ch);
+      copy.sourceCategory = cat.name;
+      return copy;
+    }));
+  });
+  return list;
+}
+function allPokemonCharacters(){
+  var cat = null;
+  for(var i = 0; i < CATEGORIES.length; i++){ if(CATEGORIES[i].name === 'Pokémon'){ cat = CATEGORIES[i]; break; } }
+  if(!cat){ return []; }
+  return sortPokemonByDex(buildCharacters(cat).map(function(ch){
+    var copy = Object.assign({}, ch);
+    copy.generation = generationForPokemonName(ch.name);
+    copy.sourceCategory = 'Pokémon';
+    return copy;
+  }));
+}
+function pokemonCharactersForGenerations(generations){
+  var selected = (generations && generations.length ? generations : ALL_POKEMON_GENERATIONS).map(Number);
+  var allSelected = ALL_POKEMON_GENERATIONS.every(function(g){ return selected.indexOf(g) >= 0; });
+  return allPokemonCharacters().filter(function(ch){
+    /* Se tutte le gen sono attive, includi anche eventuali nomi non risolti per non perdere asset.
+       Con una selezione parziale, entrano soltanto Pokémon classificati in una delle gen scelte. */
+    return (ch.generation && selected.indexOf(ch.generation) >= 0) || (allSelected && !ch.generation);
+  });
+}
+function mixMaxCount(){
+  var nonPokemon = allNonPokemonCharacters();
+  var pokemon = allPokemonCharacters();
+  return nonPokemon.length + Math.min(MIX_POKEMON_LIMIT, pokemon.length);
+}
+function buildMixDeck(size){
+  var nonPokemon = shuffle(allNonPokemonCharacters());
+  /* Si estrae casualmente un massimo di sei Pokémon e poi li ordina per numero Pokédex. */
+  var pokemon = sortPokemonByDex(shuffle(allPokemonCharacters()).slice(0, MIX_POKEMON_LIMIT));
+  var total = Math.max(0, Math.min(Number(size) || DEFAULT_DECK_SIZE, nonPokemon.length + pokemon.length));
+  var pokemonCount = Math.min(pokemon.length, total, MIX_POKEMON_LIMIT);
+  var nonPokemonCount = Math.min(nonPokemon.length, total - pokemonCount);
+  return interleaveMixPreservingDex(nonPokemon.slice(0, nonPokemonCount), pokemon.slice(0, pokemonCount));
+}
+function categoryPool(cat, generations){
+  if(!cat){ return []; }
+  if(cat.special === 'mix' || cat.name === 'Mix'){
+    /* La dimensione massima di Mix conta tutti i personaggi non-Pokémon e al massimo 6 Pokémon. */
+    return allNonPokemonCharacters().concat(shuffle(allPokemonCharacters()).slice(0, MIX_POKEMON_LIMIT));
+  }
+  if(cat.name === 'Pokémon'){ return pokemonCharactersForGenerations(generations); }
+  return buildCharacters(cat).map(function(ch){
+    var copy = Object.assign({}, ch);
+    copy.sourceCategory = cat.name;
+    return copy;
+  });
+}
+function makeDeck(cat, config){
+  var size = Math.max(DEFAULT_DECK_SIZE, Number(config && config.deckSize) || DEFAULT_DECK_SIZE);
+  if(cat && (cat.special === 'mix' || cat.name === 'Mix')){ return buildMixDeck(size); }
+  var pool = categoryPool(cat, config && config.pokemonGenerations);
+  if(cat && cat.name === 'Pokémon'){ return sortPokemonByDex(shuffle(pool).slice(0, Math.min(size, pool.length))); }
+  return shuffle(pool).slice(0, Math.min(size, pool.length));
+}
+function normalizeRoomConfig(value){
+  value = value && typeof value === 'object' ? value : {};
+  var gens = Array.isArray(value.pokemonGenerations) ? value.pokemonGenerations.map(Number).filter(function(g){ return ALL_POKEMON_GENERATIONS.indexOf(g) >= 0; }) : ALL_POKEMON_GENERATIONS.slice();
+  if(!gens.length){ gens = [1]; }
+  var penalty = value.wrongGuessPenalty === 'instantLoss' ? 'instantLoss' : 'skip';
+  return {
+    wrongGuessPenalty:penalty,
+    jollyEnabled:value.jollyEnabled !== false,
+    maxPlayers:Number(value.maxPlayers) === 3 ? 3 : 2,
+    allowSpectators:value.allowSpectators !== false,
+    deckSize:Math.max(DEFAULT_DECK_SIZE, Math.floor(Number(value.deckSize) || DEFAULT_DECK_SIZE)),
+    category:String(value.category || catName || ''),
+    pokemonGenerations:gens
+  };
 }
 var CHARACTERS = [];
 var catName = '';
@@ -645,6 +1111,7 @@ var peer = null, isHost = false, myN = 0, myName = '', roomCode = '';
 var conns = [], hostConn = null, roster = {};
 var secret = null, locked = false, guessMode = false, entered = false, joinTimer = null;
 var eliminated = {};
+var isSpectator = false, spectatorTarget = 0, spectatorSnapshot = null, spectatorNoticeShown = false;
 
 /* Stato di partita, sessione e riconnessione */
 var SESSION_KEY = 'indovinachi-session', SESSION_TTL = 3 * 3600 * 1000;
@@ -856,6 +1323,7 @@ if(window.ResizeObserver){ new ResizeObserver(scheduleFit).observe($('board')); 
 function cardEl(i){ return $('board').children[i]; }
 
 function onCard(i){
+  if(isSpectator){ return; }
   if(!locked){
     secret = i;
     updateSecret();
@@ -866,6 +1334,7 @@ function onCard(i){
   if(eliminated[i]){ delete eliminated[i]; el.classList.remove('out'); }
   else { eliminated[i] = true; el.classList.add('out'); }
   sfx.flip();
+  publishBoardState();
   saveSoon();
 }
 var secretHidden = false;
@@ -877,6 +1346,8 @@ function refreshSecretName(){
 function refreshSecretMask(){
   $('secretBox').classList.toggle('masked', secretHidden);
   $('hideSecretBtn').textContent = secretHidden ? 'Mostra carta segreta' : 'Nascondi carta segreta';
+  $('hideSecretBtn').classList.toggle('hidden', !locked || isSpectator);
+  $('hideSecretBtn').disabled = !locked || isSpectator;
   refreshSecretName();
   saveSoon();
   if(secret !== null && locked){
@@ -909,7 +1380,7 @@ function updateSecret(){
   box.replaceWith(nf);
   nf.id = 'secretFace';
   refreshSecretName();
-  cardEl(secret).classList.add(locked ? 'mine' : 'pick');
+  if(cardEl(secret)){ cardEl(secret).classList.add(locked ? 'mine' : 'pick'); }
   updateControls();
 }
 
@@ -918,6 +1389,7 @@ function broadcast(msg){
   conns.forEach(function(c){ if(c.open){ c.send(msg); } });
 }
 function post(msg){
+  if(isSpectator && msg.t !== 'chat'){ return; }
   msg.from = myN;
   if(isHost){ broadcast(msg); }
   else if(hostConn && hostConn.open){ hostConn.send(msg); }
@@ -931,17 +1403,52 @@ function hostSys(text){
   log(text, 'sys');
   broadcast({t:'sys', text:text});
 }
+function publicRoster(){
+  var out = {};
+  Object.keys(roster).forEach(function(k){
+    var p = roster[k] || {};
+    var eliminatedCount = Array.isArray(p.eliminated) ? p.eliminated.length : (Number(p.eliminatedCount) || 0);
+    out[k] = {name:p.name || ('Giocatore ' + k), ready:!!p.ready, offline:!!p.offline,
+      spectator:!!p.spectator, eliminatedCount:eliminatedCount};
+  });
+  return out;
+}
+function sendSpectatorSnapshots(){
+  if(!isHost){ return; }
+  var players = Object.keys(roster).map(Number).filter(function(n){ return roster[n] && !roster[n].spectator; }).sort(function(a,b){ return a-b; }).map(function(n){
+    var p = roster[n] || {};
+    return {n:n, name:p.name || pname(n), ready:!!p.ready, offline:!!p.offline,
+      eliminated:Array.isArray(p.eliminated) ? p.eliminated.slice() : [],
+      secretIndex:(p.ready && Number.isInteger(p.secretIndex)) ? p.secretIndex : null};
+  });
+  var snapshot = {t:'spectatorSnapshot', chars:CHARACTERS, players:players, roster:publicRoster(), phase:phase, turn:turnN, gid:gid};
+  conns.forEach(function(c){
+    if(c.open && c.n && roster[c.n] && roster[c.n].spectator){
+      try{ c.send(snapshot); }catch(e){}
+    }
+  });
+}
 function pushRoster(){
   renderRoster();
-  broadcast({t:'roster', roster:roster});
+  broadcast({t:'roster', roster:publicRoster()});
+  sendSpectatorSnapshots();
 }
 
-function createRoom(cat, useAll){
+function createRoom(cat, config){
   setupMsg('');
-  var full = buildCharacters(cat);
-  useAllChars = !!useAll;
-  drawn = !useAllChars && full.length > MAX_CARDS;
-  CHARACTERS = drawn ? shuffle(full).slice(0, MAX_CARDS) : full;
+  roomConfig = normalizeRoomConfig(config);
+  roomConfig.category = cat.name;
+  roomConfig.pokemonGenerations = (config && config.pokemonGenerations || selectedPokemonGenerations).slice();
+  var fullCount = cat.name === 'Mix' ? mixMaxCount() : categoryPool(cat, roomConfig.pokemonGenerations).length;
+  roomConfig.deckSize = Math.max(DEFAULT_DECK_SIZE, Math.min(Number(roomConfig.deckSize) || DEFAULT_DECK_SIZE, fullCount));
+  CHARACTERS = makeDeck(cat, roomConfig);
+  if(CHARACTERS.length < DEFAULT_DECK_SIZE){
+    setupMsg('La selezione contiene meno di 24 personaggi disponibili. Scegli un’altra categoria o più generazioni.');
+    return;
+  }
+  useAllChars = roomConfig.deckSize >= fullCount;
+  drawn = !useAllChars;
+  roomConfig.deckSize = CHARACTERS.length;
   catName = cat.name;
   curCat = cat;
   gid = 1; phase = 'lobby'; turnN = 0; lastResult = null; tokens = {}; roster = {};
@@ -949,12 +1456,14 @@ function createRoom(cat, useAll){
   myName = nameVal();
   isHost = true;
   myN = 1;
+  isSpectator = false;
   tryCreate(0);
 }
 function tryCreate(attempt){
   getPeerOpts(function(opts){ startHost(attempt, opts, null); });
 }
 function findCat(name){
+  if(name === 'Mix'){ return MIX_CATEGORY; }
   for(var i = 0; i < CATEGORIES.length; i++){ if(CATEGORIES[i].name === name){ return CATEGORIES[i]; } }
   return null;
 }
@@ -970,7 +1479,7 @@ function startHost(attempt, opts, fixed){
     opened = true;
     roomCode = code;
     if(fixed){ finishHostResume(); return; }
-    roster[1] = {name:myName, ready:false};
+    roster[1] = {name:myName, ready:false, spectator:false, eliminated:[], secretIndex:null};
     enterGame();
     log('Stanza creata. Categoria: ' + catName + '. Condividi il codice con gli altri giocatori.', 'sys');
     log(modeText(), 'sys');
@@ -998,8 +1507,15 @@ function startHost(attempt, opts, fixed){
 function resumeHost(sess){
   isHost = true; myN = 1; myName = sess.name; roomCode = sess.code;
   CHARACTERS = sess.chars || []; catName = sess.cat || ''; useAllChars = !!sess.all; drawn = !!sess.drawn;
+  roomConfig = normalizeRoomConfig(sess.roomConfig || {category:catName, deckSize:CHARACTERS.length, wrongGuessPenalty:'skip', jollyEnabled:true, maxPlayers:2, allowSpectators:true});
   gid = sess.gid || 1; phase = sess.phase || 'lobby'; turnN = sess.turn || 0; lastResult = sess.res || null;
-  roster = sess.roster || {}; tokens = sess.tokens || {}; curCat = findCat(catName);
+  roster = sess.roster || {}; tokens = sess.tokens || {}; curCat = findCat(catName); roomConfig.category = catName;
+  Object.keys(roster).forEach(function(k){
+    var p = roster[k]; p.spectator = !!p.spectator;
+    if(!Array.isArray(p.eliminated)){ p.eliminated = []; }
+    if(typeof p.secretIndex !== 'number'){ p.secretIndex = null; }
+  });
+  isSpectator = false;
   resumeData = sess;
   setupMsg('Ripristino della stanza in corso...');
   getPeerOpts(function(opts){ startHost(0, opts, sess.code); });
@@ -1011,6 +1527,11 @@ function finishHostResume(){
   Object.keys(roster).forEach(function(k){ if(Number(k) !== 1){ markOffline(Number(k), true); } });
   enterGame();
   restoreLocal(sess);
+  if(roster[1]){
+    roster[1].eliminated = Object.keys(eliminated).map(Number);
+    roster[1].secretIndex = locked && secret !== null ? secret : null;
+  }
+  pushRoster();
   log('Stanza ripristinata. Attendo la riconnessione degli altri giocatori...', 'sys');
   if(phase === 'over' && lastResult){ showEnd(lastResult); }
 }
@@ -1020,7 +1541,7 @@ function connBySeat(n){
   return null;
 }
 function activeIds(){
-  return Object.keys(roster).map(Number).filter(function(n){ return !roster[n].offline; }).sort(function(a, b){ return a - b; });
+  return Object.keys(roster).map(Number).filter(function(n){ return roster[n] && !roster[n].offline && !roster[n].spectator; }).sort(function(a, b){ return a - b; });
 }
 function nextOf(from){
   var ids = activeIds().filter(function(n){ return roster[n].ready; });
@@ -1040,7 +1561,7 @@ function maybeStart(){
   var ids = activeIds();
   if(ids.length < 2){ return; }
   for(var i = 0; i < ids.length; i++){ if(!roster[ids[i]].ready){ return; } }
-  var msg = {t:'start', turn:ids[Math.floor(Math.random() * ids.length)], from:1};
+  var msg = {t:'start', turn:ids[Math.floor(Math.random() * ids.length)], roomConfig:roomConfig, from:1};
   broadcast(msg);
   handle(msg);
 }
@@ -1086,8 +1607,10 @@ function onIncoming(conn){
   });
 }
 function welcomeMsg(n, rejoined){
-  return {t:'welcome', n:n, code:roomCode, chars:CHARACTERS, category:catName, all:useAllChars, drawn:drawn,
-    name:roster[n].name, token:tokens[n], gid:gid, phase:phase, turn:turnN, res:lastResult, rejoined:!!rejoined};
+  return {t:'welcome', n:n, role:roster[n].spectator ? 'spectator' : 'player', code:roomCode,
+    chars:CHARACTERS, category:catName, all:useAllChars, drawn:drawn, roomConfig:roomConfig,
+    name:roster[n].name, token:tokens[n], roster:publicRoster(), gid:gid, phase:phase, turn:turnN,
+    res:lastResult, rejoined:!!rejoined};
 }
 function onHostData(conn, d){
   if(!d || typeof d !== 'object'){ return; }
@@ -1112,40 +1635,99 @@ function onHostData(conn, d){
       pushRoster();
       return;
     }
-    var n = !roster[2] ? 2 : (!roster[3] ? 3 : 0);
+
+    var rosterCount = Object.keys(roster).length;
+    var n = 0;
+    if(rosterCount < 5){
+      var availableActive = [2,3].filter(function(candidate){
+        return candidate <= roomConfig.maxPlayers && !roster[candidate];
+      });
+      if(activeIds().length < roomConfig.maxPlayers && availableActive.length){
+        n = availableActive[0];
+      } else if(roomConfig.allowSpectators){
+        var spectatorSeats = [4,5,6].filter(function(candidate){ return !roster[candidate]; });
+        if(spectatorSeats.length){ n = spectatorSeats[0]; }
+      }
+    }
     if(!n){
-      conn.send({t:'full'});
-      setTimeout(function(){ try{ conn.close(); }catch(e){} }, 400);
+      var reason = rosterCount >= 5
+        ? 'La stanza ha raggiunto il limite di 5 utenti complessivi.'
+        : 'Gli slot dei giocatori attivi sono occupati e gli spettatori sono disabilitati o non ci sono più slot disponibili.';
+      conn.send({t:'full', reason:reason});
+      setTimeout(function(){ try{ conn.close(); }catch(e){} }, 500);
       return;
     }
+
     conn.n = n;
     conn.lastRx = Date.now();
     conns.push(conn);
     var nm = String(d.name || 'Giocatore').slice(0, 20);
-    var taken = Object.keys(roster).some(function(k){ return roster[k].name.toLowerCase() === nm.toLowerCase(); });
-    if(taken){ nm = nm.slice(0, 17) + ' ' + n; }
-    roster[n] = {name:nm, ready:false};
+    var taken = Object.keys(roster).some(function(k){ return String(roster[k].name || '').toLowerCase() === nm.toLowerCase(); });
+    if(taken){ nm = nm.slice(0, 16) + ' ' + n; }
+    var spectator = n >= 4;
+    roster[n] = {name:nm, ready:false, offline:false, spectator:spectator, eliminated:[], secretIndex:null};
     tokens[n] = Math.random().toString(36).slice(2) + Date.now().toString(36);
     conn.send(welcomeMsg(n, false));
-    hostSys(roster[n].name + ' connesso');
+    hostSys(spectator ? (roster[n].name + ' è entrato come spettatore') : (roster[n].name + ' connesso'));
     pushRoster();
     saveSoon();
     return;
   }
-  if(!conn.n){ return; }
+
+  if(!conn.n || !roster[conn.n]){ return; }
   if(d.t === 'leave'){ dropSeat(conn.n, 'è uscito dalla stanza'); return; }
+  var sender = roster[conn.n];
+
+  /* Gli indici degli scarti non vengono mai inoltrati ai giocatori attivi. */
+  if(d.t === 'boardState'){
+    if(sender.spectator){ return; }
+    var indices = Array.isArray(d.eliminated) ? d.eliminated : [];
+    var seen = {};
+    sender.eliminated = indices.map(Number).filter(function(i){
+      if(!Number.isInteger(i) || i < 0 || i >= CHARACTERS.length || seen[i]){ return false; }
+      seen[i] = true; return true;
+    });
+    pushRoster();
+    saveSoon();
+    return;
+  }
+
+  if(d.t === 'ready'){
+    if(sender.spectator){ return; }
+    if(Number.isInteger(d.secret) && d.secret >= 0 && d.secret < CHARACTERS.length){ sender.secretIndex = d.secret; }
+    var readyRelay = Object.assign({}, d);
+    delete readyRelay.secret;
+    readyRelay.from = conn.n;
+    handle(readyRelay);
+    conns.forEach(function(c){ if(c !== conn && c.open){ c.send(readyRelay); } });
+    pushRoster();
+    return;
+  }
+
+  /* Gli spettatori possono usare la chat, ma non inviare comandi di gioco. */
+  if(sender.spectator){
+    if(d.t === 'chat' && typeof d.text === 'string'){
+      var spectatorChat = {t:'chat', text:d.text.slice(0,200), from:conn.n};
+      handle(spectatorChat);
+      conns.forEach(function(c){ if(c !== conn && c.open){ c.send(spectatorChat); } });
+    }
+    return;
+  }
+  if(d.t === 'quick' && d.kind === 'jolly' && !roomConfig.jollyEnabled){ return; }
   if(!RELAY[d.t]){ return; }
+  d = Object.assign({}, d);
   d.from = conn.n;
   handle(d);
   conns.forEach(function(c){ if(c !== conn && c.open){ c.send(d); } });
 }
-
 function joinRoom(){
   setupMsg('');
   var code = $('codeIn').value.trim().toUpperCase();
   if(!code){ setupMsg('Inserisci il codice della stanza.'); return; }
   myName = nameVal();
   isHost = false;
+  isSpectator = false;
+  spectatorSnapshot = null; spectatorTarget = 0;
   roomCode = code;
   myN = 0; myToken = ''; gid = 0; resumeData = null;
   leaving = false; closedByHost = false; reconnecting = false;
@@ -1153,7 +1735,7 @@ function joinRoom(){
   getPeerOpts(function(opts){ startGuest(code, opts, 'fresh'); });
 }
 function resumeGuest(sess){
-  isHost = false; myName = sess.name; roomCode = sess.code; myN = sess.n || 0; myToken = sess.token || '';
+  isHost = false; isSpectator = Number(sess.n) >= 4; spectatorSnapshot = null; spectatorTarget = 0; myName = sess.name; roomCode = sess.code; myN = sess.n || 0; myToken = sess.token || '';
   gid = sess.gid || 0; catName = sess.cat || '';
   resumeData = sess;
   setupMsg('Ripresa della partita in corso...');
@@ -1295,12 +1877,17 @@ function handle(d){
       var hadEntered = entered, rejoin = !!d.rejoined, wasRecon = reconnecting;
       var keep = rejoin && d.gid === gid;
       myN = d.n;
+      isSpectator = d.role === 'spectator' || (!!(d.roster && d.roster[d.n] && d.roster[d.n].spectator));
+      if(d.roster){ roster = d.roster; }
+      document.body.classList.toggle('is-spectator', isSpectator);
       if(d.name){ myName = d.name; }
       if(d.token){ myToken = d.token; }
       if(d.chars && d.chars.length){ CHARACTERS = d.chars; }
       if(d.category){ catName = d.category; }
       useAllChars = !!d.all;
       drawn = !!d.drawn;
+      roomConfig = normalizeRoomConfig(d.roomConfig || {category:d.category, deckSize:(d.chars || []).length});
+      roomConfig.category = d.category || roomConfig.category;
       roomCode = d.code || roomCode;
       gid = d.gid || 1;
       phase = d.phase || 'lobby';
@@ -1328,10 +1915,13 @@ function handle(d){
       flushOutbox();
       renderTurn();
       refreshHint();
+      refreshJollyButton();
+      updateSpectatorModeUI();
+      if(isSpectator && !rejoin && !spectatorNoticeShown){ showSpectatorNotice(); }
       if(phase === 'over' && lastResult){ showEnd(lastResult); }
       break;
     case 'full':
-      setupMsg('Stanza piena: massimo 3 giocatori.');
+      setupMsg(d.reason || 'Stanza piena: raggiunto il limite di utenti o di giocatori attivi.');
       if(reconnecting && !entered){ reconnecting = false; clearTimeout(retryTimer); clearSession(); }
       break;
     case 'bye':
@@ -1348,6 +1938,13 @@ function handle(d){
       renderRoster();
       updateControls();
       break;
+    case 'spectatorSnapshot':
+      if(isSpectator){
+        spectatorSnapshot = d;
+        if(d.roster){ roster = d.roster; renderRoster(); }
+        renderSpectatorView();
+      }
+      break;
     case 'sys':
       log(d.text, 'sys');
       break;
@@ -1356,13 +1953,17 @@ function handle(d){
       sfx.msg();
       break;
     case 'quick':
+      if(d.kind === 'jolly' && !roomConfig.jollyEnabled){ break; }
       var q = QUICK[d.kind];
       if(!q){ break; }
       log(pname(d.from) + ': ', 'chat', {text:q.label, cls:q.cls});
       sfx.quick(d.kind);
       break;
     case 'ready':
-      if(roster[d.from]){ roster[d.from].ready = true; }
+      if(roster[d.from]){
+        roster[d.from].ready = true;
+        if(isHost && d.from === myN && secret !== null){ roster[d.from].secretIndex = secret; }
+      }
       renderRoster();
       updateControls();
       log(pname(d.from) + ' ha scelto la carta segreta ed è pronto.', 'sys');
@@ -1376,6 +1977,8 @@ function handle(d){
       log(pname(d.from) + ' ha ripristinato la partita.', 'sys');
       break;
     case 'start':
+      if(d.roomConfig){ roomConfig = normalizeRoomConfig(d.roomConfig); }
+      refreshJollyButton();
       phase = 'playing';
       turnN = d.turn || 0;
       lastResult = null;
@@ -1404,8 +2007,15 @@ function handle(d){
       if(phase !== 'playing'){ break; }
       var cn = CHARACTERS[d.card] ? CHARACTERS[d.card].name : '?';
       lastResult = {guesser:d.guesser, target:d.target, card:d.card, ok:!!d.ok, answer:d.answer};
-      phase = 'over';
       exitGuess();
+      if(!d.ok && roomConfig.wrongGuessPenalty === 'skip'){
+        log(pname(d.guesser) + ' ha sbagliato: la carta di ' + pname(d.target) + ' non è ' + cn + '. Penalità: salta il turno.', 'err');
+        renderTurn();
+        refreshHint();
+        if(isHost){ advanceTurn(d.guesser); }
+        break;
+      }
+      phase = 'over';
       renderTurn();
       refreshHint();
       if(d.ok){
@@ -1417,12 +2027,19 @@ function handle(d){
       showEnd(lastResult);
       break;
     case 'rematch':
+      if(d.roomConfig){ roomConfig = normalizeRoomConfig(d.roomConfig); }
+      if(d.category){ catName = d.category; roomConfig.category = d.category; curCat = findCat(d.category); }
+      if(typeof d.all === 'boolean'){ useAllChars = d.all; }
+      if(typeof d.drawn === 'boolean'){ drawn = d.drawn; }
       CHARACTERS = d.chars;
+      refreshJollyButton();
       gid = d.gid;
       phase = 'lobby';
       turnN = 0;
       lastResult = null;
-      Object.keys(roster).forEach(function(k){ roster[k].ready = false; });
+      Object.keys(roster).forEach(function(k){
+        roster[k].ready = false; roster[k].secretIndex = null; roster[k].eliminated = []; roster[k].eliminatedCount = 0;
+      });
       closeEnd();
       exitGuess();
       buildBoard();
@@ -1432,16 +2049,20 @@ function handle(d){
       log('Nuova partita: le carte sono state rimescolate. Scegliete la carta segreta.', 'sys');
       break;
   }
+  if(isHost && ['ready','unready','start','turn','result','rematch'].indexOf(d.t) >= 0){ sendSpectatorSnapshots(); }
   saveSoon();
 }
 
 /* ---------- Azioni ---------- */
 function confirmSecret(){
-  if(secret === null || locked){ return; }
+  if(isSpectator || secret === null || locked){ return; }
   locked = true;
+  if(isHost && roster[myN]){ roster[myN].secretIndex = secret; }
   updateSecret();
+  refreshSecretMask();
   refreshHint();
-  post({t:'ready'});
+  if(isHost){ post({t:'ready'}); sendSpectatorSnapshots(); }
+  else { post({t:'ready', secret:secret}); }
 }
 function exitGuess(){ if(guessMode){ toggleGuess(); } }
 function toggleGuess(){
@@ -1454,7 +2075,7 @@ function toggleGuess(){
 }
 function opponents(){
   return Object.keys(roster).map(Number).filter(function(n){
-    return n !== myN && roster[n].ready && !roster[n].offline;
+    return n !== myN && roster[n].ready && !roster[n].offline && !roster[n].spectator;
   });
 }
 function updateTargetUI(){
@@ -1484,13 +2105,33 @@ function resetLocal(){
   exitGuess();
   locked = false;
   secret = null;
+  secretHidden = false;
   updateSecret();
+  refreshSecretMask();
   refreshHint();
 }
+function publishBoardState(){
+  if(isSpectator){ return; }
+  var indices = Object.keys(eliminated).map(Number).filter(function(i){ return Number.isInteger(i) && i >= 0 && i < CHARACTERS.length; });
+  if(roster[myN]){
+    if(isHost){ roster[myN].eliminated = indices.slice(); }
+    else { roster[myN].eliminatedCount = indices.length; }
+  }
+  renderRoster();
+  if(isHost){ pushRoster(); saveSoon(); }
+  else if(hostConn && hostConn.open){
+    try{ hostConn.send({t:'boardState', eliminated:indices}); }catch(e){}
+  }
+}
 function resetBoard(){
-  if(phase === 'playing' && !window.confirm('Ripristinare tutto? La partita in corso ripartirà dalla scelta delle carte segrete.')){ return; }
-  resetLocal();
-  post({t:'unready'});
+  if(isSpectator){ return; }
+  eliminated = {};
+  var all = $('board').children;
+  for(var k = 0; k < all.length; k++){ all[k].classList.remove('out'); }
+  publishBoardState();
+  refreshHint();
+  log('Tabellone ripristinato. La carta segreta e lo stato della partita sono rimasti invariati.', 'sys');
+  saveSoon();
 }
 function refreshHint(){
   var t;
@@ -1506,8 +2147,8 @@ function refreshHint(){
   $('hint').textContent = t;
 }
 function updateControls(){
-  var playing = phase === 'playing';
-  $('confirmBtn').disabled = locked || secret === null;
+  var playing = phase === 'playing' && !isSpectator;
+  $('confirmBtn').disabled = isSpectator || locked || secret === null;
   $('guessBtn').disabled = !(locked && playing && opponents().length > 0);
   $('passBtn').classList.toggle('hidden', !playing);
   $('passBtn').disabled = !(playing && turnN === myN);
@@ -1539,17 +2180,117 @@ function renderRoster(){
   var r = $('roster');
   r.textContent = '';
   var tgt = (guessMode && opp.length > 1) ? Number(sel.value) : 0;
-  Object.keys(roster).forEach(function(k){
+  Object.keys(roster).sort(function(a,b){ return Number(a)-Number(b); }).forEach(function(k){
     var n = Number(k), p = roster[k];
-    var c = document.createElement('span');
-    c.className = 'chip' + (p.ready ? ' ready' : '') + (p.offline ? ' offline' : '') +
-      (phase === 'playing' && n === turnN ? ' active' : '') + (n === tgt ? ' target' : '');
+    var c = document.createElement('button');
+    c.type = 'button';
+    c.className = 'chip roster-chip' + (p.ready ? ' ready' : '') + (p.offline ? ' offline' : '') +
+      (phase === 'playing' && n === turnN ? ' active' : '') + (n === tgt ? ' target' : '') + (p.spectator ? ' spectator' : '');
     c.dataset.n = n;
-    c.textContent = p.name + (n === myN ? ' (tu)' : '') + (p.ready ? ' ✓' : '') + (p.offline ? ' (offline)' : '');
-    if(p.offline){ c.title = 'In attesa di riconnessione'; }
+    var label = p.name;
+    if(n === myN){ label += p.spectator ? ' (tu, spettatore)' : (n === 1 ? ' (tu, host)' : ' (tu)'); }
+    else if(n === 1){ label += ' (host)'; }
+    else if(p.spectator){ label += ' (spettatore)'; }
+    if(p.ready && !p.spectator){ label += ' ✓'; }
+    if(p.offline){ label += ' (offline)'; }
+    var nameSpan = document.createElement('span');
+    nameSpan.className = 'roster-name';
+    nameSpan.textContent = label;
+    c.appendChild(nameSpan);
+    var count = document.createElement('span');
+    count.className = 'discard-count';
+    var scarti = Array.isArray(p.eliminated) ? p.eliminated.length : (Number(p.eliminatedCount) || 0);
+    count.textContent = 'Scarti: ' + (p.spectator ? '—' : scarti);
+    c.appendChild(count);
+    if(p.offline){ c.title = 'Giocatore offline: visualizzazione dell’ultimo stato sincronizzato'; }
+    else { c.title = p.spectator ? 'Spettatore' : 'Partecipante'; }
+    if(isSpectator && !p.spectator){
+      c.title = 'Clicca per ispezionare il tabellone e la carta segreta' + (p.offline ? ' (ultimo stato sincronizzato)' : '');
+      c.addEventListener('click', function(){ setSpectatorTarget(n); });
+    }
     r.appendChild(c);
   });
 }
+function setSpectatorTarget(n){
+  if(!isSpectator){ return; }
+  spectatorTarget = Number(n) || 0;
+  $('spectatorView').classList.remove('hidden');
+  renderSpectatorView();
+}
+function renderSpectatorView(){
+  if(!isSpectator){ return; }
+  var panel = $('spectatorView');
+  if(panel.classList.contains('hidden')){ return; }
+  var snap = spectatorSnapshot;
+  $('spectatorBoard').textContent = '';
+  if(!snap || !Array.isArray(snap.players)){
+    $('spectatorViewTitle').textContent = 'Visuale spettatore';
+    $('spectatorViewStatus').textContent = 'In attesa dei dati del tabellone dall’Host…';
+    $('spectatorSecretName').textContent = 'Carta segreta non ancora disponibile';
+    $('spectatorSecretHelp').textContent = 'Attendi la sincronizzazione della stanza.';
+    $('spectatorSecretFace').textContent = '…';
+    return;
+  }
+  var player = snap.players.filter(function(p){ return p.n === spectatorTarget; })[0];
+  if(!player){
+    $('spectatorViewTitle').textContent = 'Visuale spettatore';
+    $('spectatorViewStatus').textContent = 'Clicca sul nome di un giocatore attivo nell’elenco per aprire la sua visuale.';
+    $('spectatorSecretName').textContent = 'Nessun giocatore selezionato';
+    $('spectatorSecretHelp').textContent = 'La carta segreta sarà visibile quando il giocatore l’avrà confermata.';
+    $('spectatorSecretFace').textContent = '?';
+    return;
+  }
+  var chars = Array.isArray(snap.chars) ? snap.chars : CHARACTERS;
+  var out = {};
+  (player.eliminated || []).forEach(function(i){ out[Number(i)] = true; });
+  $('spectatorViewTitle').textContent = player.name + ' — tabellone';
+  $('spectatorViewStatus').textContent = (player.offline ? 'Giocatore offline. ' : '') +
+    'Scarti: ' + Object.keys(out).length + ' · Fase: ' + (snap.phase === 'playing' ? 'partita in corso' : (snap.phase === 'over' ? 'partita terminata' : 'attesa')) +
+    (snap.turn ? ' · Turno di ' + pname(snap.turn) : '');
+  var secretBox = $('spectatorSecretFace');
+  secretBox.textContent = '';
+  if(player.ready && Number.isInteger(player.secretIndex) && chars[player.secretIndex]){
+    secretBox.appendChild(makeFace(chars[player.secretIndex]));
+    $('spectatorSecretName').textContent = chars[player.secretIndex].name;
+    $('spectatorSecretHelp').textContent = 'Carta segreta confermata dal giocatore.';
+  } else {
+    var q = document.createElement('span'); q.className = 'emo'; q.textContent = '?'; secretBox.appendChild(q);
+    $('spectatorSecretName').textContent = 'Carta segreta non ancora confermata';
+    $('spectatorSecretHelp').textContent = 'La carta apparirà qui quando il giocatore la conferma.';
+  }
+  chars.forEach(function(ch, i){
+    var card = document.createElement('div');
+    card.className = 'card' + (out[i] ? ' out' : '') + (player.secretIndex === i && player.ready ? ' spectator-secret-card' : '');
+    var inner = document.createElement('div'); inner.className = 'card-inner';
+    var front = document.createElement('div'); front.className = 'card-front';
+    front.appendChild(makeFace(ch));
+    var name = document.createElement('div'); name.className = 'nm'; name.textContent = ch.name; front.appendChild(name);
+    var back = document.createElement('div'); back.className = 'card-back'; back.setAttribute('aria-hidden','true'); back.textContent = '?';
+    inner.appendChild(front); inner.appendChild(back); card.appendChild(inner);
+    $('spectatorBoard').appendChild(card);
+  });
+}
+function updateSpectatorModeUI(){
+  document.body.classList.toggle('is-spectator', isSpectator);
+  $('spectatorInfo').classList.toggle('hidden', !isSpectator);
+  if(isSpectator){
+    $('confirmBtn').disabled = true;
+    $('guessBtn').disabled = true;
+    $('passBtn').classList.add('hidden');
+    $('rematchBtn').classList.add('hidden');
+  } else {
+    $('spectatorView').classList.add('hidden');
+  }
+  refreshSecretMask();
+  refreshJollyButton();
+  updateControls();
+}
+function showSpectatorNotice(){
+  spectatorNoticeShown = true;
+  $('spectatorNoticeModal').classList.remove('hidden');
+  $('spectatorNoticeOk').focus();
+}
+function closeSpectatorNotice(){ $('spectatorNoticeModal').classList.add('hidden'); }
 
 /* ---------- Fine partita e rivincita ---------- */
 function showEnd(res){
@@ -1580,15 +2321,27 @@ function showEnd(res){
 function closeEnd(){ $('endModal').classList.add('hidden'); }
 function startRematch(){
   if(!isHost || phase !== 'over'){ return; }
-  var cat = curCat || findCat(catName), chars;
-  if(cat){
-    var full = buildCharacters(cat);
-    chars = drawn ? shuffle(full).slice(0, MAX_CARDS) : shuffle(full);
-  } else { chars = shuffle(CHARACTERS); }
-  var msg = {t:'rematch', chars:chars, gid:gid + 1, from:1};
-  broadcast(msg);
-  handle(msg);
-  pushRoster();
+  var cat = curCat || findCat(catName);
+  function buildAndSend(){
+    var chars = cat ? makeDeck(cat, roomConfig) : shuffle(CHARACTERS);
+    if(chars.length < DEFAULT_DECK_SIZE){ log('Impossibile avviare la rivincita: il mazzo contiene meno di 24 personaggi.', 'err'); return; }
+    roomConfig.deckSize = chars.length;
+    useAllChars = cat ? roomConfig.deckSize >= (cat.name === 'Mix' ? mixMaxCount() : categoryPool(cat, roomConfig.pokemonGenerations).length) : false;
+    drawn = !useAllChars;
+    var msg = {t:'rematch', chars:chars, roomConfig:roomConfig, category:cat ? cat.name : catName,
+      all:useAllChars, drawn:drawn, gid:gid + 1, from:1};
+    broadcast(msg);
+    handle(msg);
+    pushRoster();
+  }
+  if(cat && (cat.name === 'Pokémon' || cat.name === 'Mix') && (!POKEMON_DEX_BY_NAME || (cat.name === 'Pokémon' && !POKEMON_GENERATION_BY_NAME))){
+    log('Caricamento dei dati Pokémon per la rivincita...', 'sys');
+    var loads = [loadPokemonDexMap()];
+    if(cat.name === 'Pokémon'){ loads.push(loadPokemonGenerationMap()); }
+    Promise.all(loads).then(buildAndSend).catch(function(){ log('Non riesco a caricare i dati Pokémon necessari. Riprova con una connessione disponibile.', 'err'); });
+    return;
+  }
+  buildAndSend();
 }
 
 /* ---------- Sessione (sessionStorage) ---------- */
@@ -1596,7 +2349,7 @@ function saveNow(){
   saveTimer = null;
   if(!entered || !roomCode || leaving){ return; }
   var st = {v:1, ts:Date.now(), code:roomCode, name:myName, host:isHost, n:myN, token:myToken, cat:catName,
-    all:useAllChars, drawn:drawn, gid:gid, phase:phase, turn:turnN, res:lastResult, secret:secret, locked:locked,
+    all:useAllChars, drawn:drawn, roomConfig:roomConfig, gid:gid, phase:phase, turn:turnN, res:lastResult, secret:secret, locked:locked,
     hidden:secretHidden, elim:Object.keys(eliminated).map(Number)};
   if(isHost){ st.chars = CHARACTERS; st.roster = roster; st.tokens = tokens; }
   try{ sessionStorage.setItem(SESSION_KEY, JSON.stringify(st)); }catch(e){}
@@ -1638,9 +2391,19 @@ function leaveRoom(){
   }, 250);
 }
 
+function refreshJollyButton(){
+  var buttons = document.querySelectorAll('#quickReplies .btn-jolly');
+  Array.prototype.forEach.call(buttons, function(button){
+    button.classList.toggle('hidden', !roomConfig.jollyEnabled || isSpectator);
+    button.disabled = !roomConfig.jollyEnabled || isSpectator;
+    button.setAttribute('aria-hidden', roomConfig.jollyEnabled && !isSpectator ? 'false' : 'true');
+  });
+}
 function enterGame(){
   entered = true;
   setupMsg('');
+  refreshJollyButton();
+  document.body.classList.toggle('is-spectator', isSpectator);
   $('setup').classList.add('hidden');
   $('game').classList.remove('hidden');
   document.body.classList.add('in-game');
@@ -1651,37 +2414,157 @@ function enterGame(){
   fitBoard();
   scheduleFit();
   startHeartbeat();
+  updateSpectatorModeUI();
+  if(isSpectator){ renderSpectatorView(); }
+  else if(isHost && roster[myN]){ roster[myN].eliminated = Object.keys(eliminated).map(Number); }
   saveSoon();
 }
 
-/* ---------- Selezione categoria ---------- */
+/* ---------- Selezione categoria e impostazioni Host ---------- */
+function selectedGenerationIds(){
+  return Array.prototype.map.call(document.querySelectorAll('#genGrid input[type="checkbox"]:checked'), function(el){ return Number(el.value); });
+}
+function syncGenerationInputs(){
+  Array.prototype.forEach.call(document.querySelectorAll('#genGrid input[type="checkbox"]'), function(el){
+    el.checked = selectedPokemonGenerations.indexOf(Number(el.value)) >= 0;
+  });
+  var allSelected = ALL_POKEMON_GENERATIONS.every(function(g){ return selectedPokemonGenerations.indexOf(g) >= 0; });
+  $('toggleAllGens').textContent = allSelected ? 'Deseleziona tutte' : 'Seleziona tutte';
+  $('genSelectionCount').textContent = selectedPokemonGenerations.length + ' generazioni selezionate';
+}
+function categoryMax(cat){
+  if(!cat){ return 0; }
+  if(cat.name === 'Mix'){ return mixMaxCount(); }
+  if(cat.name === 'Pokémon'){ return pokemonCharactersForGenerations(selectedPokemonGenerations).length; }
+  return buildCharacters(cat).length;
+}
+function updateDeckDisplay(){
+  var input = $('deckSizeRange');
+  var min = DEFAULT_DECK_SIZE;
+  var max = Number(input.max) || min;
+  var value = Math.max(min, Math.min(Number(input.value) || min, max));
+  input.value = String(value);
+  selectedDeckSize = value;
+  $('deckSizeValue').textContent = value >= max ? 'Tutti (' + value + ')' : String(value);
+  $('deckSizeMinus').disabled = value <= min;
+  $('deckSizePlus').disabled = value >= max;
+  $('deckSizeHelp').textContent = 'Disponibili: ' + max + ' personaggi. Al valore massimo verranno inclusi tutti quelli disponibili' + (selectedCategory && selectedCategory.name === 'Mix' ? ' (massimo 6 Pokémon).' : '.');
+}
+function refreshSelectionControls(){
+  var cat = selectedCategory;
+  var isPokemon = !!cat && cat.name === 'Pokémon';
+  var needsPokemonData = !!cat && (isPokemon || cat.name === 'Mix');
+  var dataReady = !!POKEMON_DEX_BY_NAME && (!isPokemon || !!POKEMON_GENERATION_BY_NAME);
+  $('pokemonGenerations').classList.toggle('hidden', !isPokemon);
+  $('deckSliderSection').classList.toggle('hidden', !cat || (needsPokemonData && !dataReady));
+  $('catCreate').disabled = !cat;
+  if(!cat){ return; }
+  if(needsPokemonData && !dataReady){
+    $('catCreate').disabled = true;
+    $('catSetupMsg').textContent = 'Caricamento del Pokédex e della classificazione per generazioni…';
+    return;
+  }
+  var max = categoryMax(cat);
+  $('deckSizeRange').min = String(DEFAULT_DECK_SIZE);
+  $('deckSizeRange').max = String(Math.max(DEFAULT_DECK_SIZE, max));
+  $('deckSizeRange').step = '1';
+  if(max < DEFAULT_DECK_SIZE){
+    $('deckSizeRange').value = String(DEFAULT_DECK_SIZE);
+    $('catCreate').disabled = true;
+    $('catSetupMsg').textContent = 'Questa selezione contiene solo ' + max + ' personaggi. Seleziona più generazioni o un’altra categoria (minimo 24).';
+  } else {
+    $('deckSizeRange').value = String(Math.max(DEFAULT_DECK_SIZE, Math.min(selectedDeckSize, max)));
+    $('catCreate').disabled = false;
+    $('catSetupMsg').textContent = '';
+  }
+  updateDeckDisplay();
+}
+function selectCategory(cat, button){
+  selectedCategory = cat;
+  Array.prototype.forEach.call(document.querySelectorAll('#catGrid .cat-box'), function(box){
+    box.classList.toggle('selected', box === button);
+    box.setAttribute('aria-pressed', box === button ? 'true' : 'false');
+  });
+  selectedDeckSize = DEFAULT_DECK_SIZE;
+  $('deckSizeRange').value = String(DEFAULT_DECK_SIZE);
+  $('catSetupMsg').textContent = '';
+  if(cat.name === 'Pokémon' || cat.name === 'Mix'){
+    var tasks = [loadPokemonDexMap()];
+    if(cat.name === 'Pokémon'){ tasks.push(loadPokemonGenerationMap()); }
+    $('pokemonGenerations').classList.toggle('hidden', cat.name !== 'Pokémon');
+    $('deckSliderSection').classList.add('hidden');
+    $('catCreate').disabled = true;
+    $('catSetupMsg').textContent = 'Caricamento del Pokédex e delle generazioni Pokémon…';
+    Promise.all(tasks).then(function(){
+      if(selectedCategory !== cat){ return; }
+      refreshSelectionControls();
+      $('catSetupMsg').textContent = '';
+      /* Rigenera l'anteprima Mix usando l'ordine Pokédex corretto. */
+      if(cat.name === 'Mix'){
+        var mixButton = Array.prototype.filter.call($('catGrid').children, function(el){ return el.querySelector('.cat-title') && el.querySelector('.cat-title').textContent === 'Mix'; })[0];
+        if(mixButton){ var replacement = categoryPreviewButton(MIX_CATEGORY); replacement.classList.add('selected'); replacement.setAttribute('aria-pressed','true'); mixButton.replaceWith(replacement); }
+      }
+    }).catch(function(error){
+      if(selectedCategory !== cat){ return; }
+      $('catSetupMsg').textContent = 'Non riesco a caricare i dati necessari per ordinare il Pokédex. Verifica la connessione e riprova. (' + (error && error.message ? error.message : 'errore di rete') + ')';
+      $('catCreate').disabled = true;
+      $('deckSliderSection').classList.add('hidden');
+    });
+    return;
+  }
+  refreshSelectionControls();
+}
+function categoryPreviewButton(cat){
+  var chars;
+  if(cat.name === 'Mix'){
+    /* Ogni apertura ricrea casualmente il set d'anteprima della card Mix. */
+    chars = buildMixDeck(Math.min(DEFAULT_DECK_SIZE, mixMaxCount()));
+  } else { chars = buildCharacters(cat); }
+  var b = document.createElement('button');
+  b.type = 'button';
+  b.className = 'cat-box';
+  b.setAttribute('aria-pressed', 'false');
+  var t = document.createElement('div');
+  t.className = 'cat-title';
+  t.textContent = cat.name;
+  b.appendChild(t);
+  var pv = document.createElement('div');
+  pv.className = 'cat-prev';
+  var picks = shuffle(chars).slice(0, 3);
+  for(var i = 0; i < 3; i++){
+    if(picks[i]){ pv.appendChild(makeFace(picks[i])); }
+    else { var empty = document.createElement('div'); empty.className = 'cat-more'; empty.textContent = '🃏'; pv.appendChild(empty); }
+  }
+  var more = document.createElement('div');
+  more.className = 'cat-more';
+  more.textContent = chars.length > 3 ? '+' + (chars.length - 3) : '+';
+  pv.appendChild(more);
+  b.appendChild(pv);
+  b.addEventListener('click', function(){ selectCategory(cat, b); });
+  return b;
+}
 function openCategories(){
   setupMsg('');
+  $('catSetupMsg').textContent = '';
   if(!CATEGORIES.length){ setupMsg('Nessuna categoria disponibile.'); return; }
+  selectedCategory = null;
+  selectedDeckSize = DEFAULT_DECK_SIZE;
+  selectedPokemonGenerations = ALL_POKEMON_GENERATIONS.slice();
+  syncGenerationInputs();
+  $('deckSizeRange').value = String(DEFAULT_DECK_SIZE);
+  document.querySelector('input[name="wrongGuessPenalty"][value="skip"]').checked = true;
+  $('jollyEnabled').checked = true;
+  document.querySelector('input[name="maxActivePlayers"][value="2"]').checked = true;
+  $('allowSpectators').checked = true;
+  $('pokemonGenerations').classList.add('hidden');
+  $('deckSliderSection').classList.add('hidden');
+  $('catCreate').disabled = true;
   var grid = $('catGrid');
   grid.textContent = '';
-  CATEGORIES.forEach(function(cat){
-    var chars = buildCharacters(cat);
-    var b = document.createElement('button');
-    b.type = 'button';
-    b.className = 'cat-box';
-    var t = document.createElement('div');
-    t.className = 'cat-title';
-    t.textContent = cat.name;
-    b.appendChild(t);
-    var pv = document.createElement('div');
-    pv.className = 'cat-prev';
-    for(var i = 0; i < 3; i++){ pv.appendChild(makeFace(chars[i])); }
-    var more = document.createElement('div');
-    more.className = 'cat-more';
-    more.textContent = chars.length > 3 ? '+' + (chars.length - 3) : '+';
-    pv.appendChild(more);
-    b.appendChild(pv);
-    b.addEventListener('click', function(){ closeCategories(false); createRoom(cat, $('allToggle').checked); });
-    grid.appendChild(b);
-  });
+  CATEGORIES.forEach(function(cat){ grid.appendChild(categoryPreviewButton(cat)); });
+  grid.appendChild(categoryPreviewButton(MIX_CATEGORY));
   $('catModal').classList.remove('hidden');
-  grid.firstChild.focus();
+  if(grid.firstChild){ grid.firstChild.focus(); }
 }
 function closeCategories(refocus){
   $('catModal').classList.add('hidden');
@@ -1689,6 +2572,50 @@ function closeCategories(refocus){
 }
 $('catCancel').addEventListener('click', function(){ closeCategories(true); });
 $('catModal').addEventListener('click', function(e){ if(e.target === $('catModal')){ closeCategories(true); } });
+$('catCreate').addEventListener('click', function(){
+  if(!selectedCategory || $('catCreate').disabled){ return; }
+  var gens = selectedGenerationIds();
+  if(!gens.length){ $('catSetupMsg').textContent = 'Seleziona almeno una generazione Pokémon.'; return; }
+  var config = {
+    wrongGuessPenalty:document.querySelector('input[name="wrongGuessPenalty"]:checked').value,
+    jollyEnabled:$('jollyEnabled').checked,
+    maxPlayers:Number(document.querySelector('input[name="maxActivePlayers"]:checked').value) || 2,
+    allowSpectators:$('allowSpectators').checked,
+    deckSize:selectedDeckSize,
+    category:selectedCategory.name,
+    pokemonGenerations:gens
+  };
+  closeCategories(false);
+  createRoom(selectedCategory, config);
+});
+$('deckSizeRange').addEventListener('input', updateDeckDisplay);
+$('deckSizeMinus').addEventListener('click', function(){
+  $('deckSizeRange').value = String(Math.max(Number($('deckSizeRange').min), Number($('deckSizeRange').value) - 1));
+  updateDeckDisplay();
+});
+$('deckSizePlus').addEventListener('click', function(){
+  $('deckSizeRange').value = String(Math.min(Number($('deckSizeRange').max), Number($('deckSizeRange').value) + 1));
+  updateDeckDisplay();
+});
+$('genGrid').addEventListener('change', function(e){
+  if(!e.target || e.target.type !== 'checkbox'){ return; }
+  var checked = selectedGenerationIds();
+  if(!checked.length){
+    e.target.checked = true;
+    $('genSetupHelp').textContent = 'Deve rimanere attiva almeno una generazione.';
+    checked = selectedGenerationIds();
+  } else { $('genSetupHelp').textContent = 'Puoi combinare liberamente più generazioni. Deve rimanerne selezionata almeno una.'; }
+  selectedPokemonGenerations = checked;
+  syncGenerationInputs();
+  refreshSelectionControls();
+});
+$('toggleAllGens').addEventListener('click', function(){
+  var allSelected = ALL_POKEMON_GENERATIONS.every(function(g){ return selectedPokemonGenerations.indexOf(g) >= 0; });
+  selectedPokemonGenerations = allSelected ? [1] : ALL_POKEMON_GENERATIONS.slice();
+  syncGenerationInputs();
+  $('genSetupHelp').textContent = allSelected ? 'È rimasta attiva Gen 1: almeno una generazione deve essere selezionata.' : 'Tutte le generazioni sono selezionate.';
+  refreshSelectionControls();
+});
 var lastLink = null;
 function openInfo(id, link){
   lastLink = link;
@@ -1712,6 +2639,7 @@ document.addEventListener('keydown', function(e){
     if(!$(id).classList.contains('hidden')){ closeInfo(id); }
   });
   if(!$('endModal').classList.contains('hidden')){ closeEnd(); }
+  if(!$('spectatorNoticeModal').classList.contains('hidden')){ closeSpectatorNotice(); }
 });
 
 /* ---------- Eventi ---------- */
@@ -1721,7 +2649,10 @@ $('codeIn').addEventListener('keydown', function(e){ if(e.key === 'Enter'){ join
 $('confirmBtn').addEventListener('click', confirmSecret);
 $('guessBtn').addEventListener('click', toggleGuess);
 $('resetBtn').addEventListener('click', resetBoard);
-$('hideSecretBtn').addEventListener('click', function(){ secretHidden = !secretHidden; refreshSecretMask(); });
+$('hideSecretBtn').addEventListener('click', function(){ if(!locked || isSpectator){ return; } secretHidden = !secretHidden; refreshSecretMask(); });
+$('spectatorNoticeClose').addEventListener('click', closeSpectatorNotice);
+$('spectatorNoticeOk').addEventListener('click', closeSpectatorNotice);
+$('spectatorViewClose').addEventListener('click', function(){ $('spectatorView').classList.add('hidden'); spectatorTarget = 0; });
 var codeHidden = false;
 function refreshCode(){
   $('roomCode').textContent = codeHidden ? new Array(roomCode.length + 1).join('*') : roomCode;

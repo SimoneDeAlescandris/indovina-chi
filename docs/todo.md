@@ -1,0 +1,2 @@
+Immagini mancanti (404): logo.png 404 (Not Found) e favicon.ico 404 (Not Found).
+  - Non bloccano il codice JavaScript, ma indicano che la pagina sta cercando un logo e la favicon nella cartella principale che non esistono ancora. Ti basta inserire i due file .png e .ico o rimuovere/correggere i tag <link> e <img> nell'HTML per pulire la console.
