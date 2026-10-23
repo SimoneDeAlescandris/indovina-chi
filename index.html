@@ -155,6 +155,8 @@ body:not(.in-game) footer{margin-top:0;padding:24px 16px 12px;align-self:stretch
 .credits li{margin-bottom:12px}
 .credits li:last-child{margin-bottom:0}
 .credits li small {display: block;margin-top: 4px;font-size: 0.8rem;color: var(--muted);}
+.credits li small a{color:var(--gold);text-decoration:underline;text-underline-offset:2px}
+.credits li small a:hover,.credits li small a:focus-visible{color:var(--text)}
 
 /* Codice stanza */
 .roombar{flex:none;margin-top:8px;padding-top:6px;border-top:2px solid var(--line);display:flex;align-items:center;justify-content:center;flex-wrap:wrap;gap:4px 6px;font-size:.7rem;color:var(--muted)}
@@ -165,11 +167,30 @@ body:not(.in-game) footer{margin-top:0;padding:24px 16px 12px;align-self:stretch
 /* Chat a destra */
 .logwrap{height:100%;display:flex;flex-direction:column;background:var(--panel);border:3px solid var(--line);border-radius:14px;padding:10px;min-width:0}
 .logwrap h2{margin:0 0 8px;font-size:1rem}
-#log{flex:1;min-height:0;overflow-y:auto;background:#0b0d11;border-radius:10px;padding:8px 10px;font-size:.85rem;word-wrap:break-word;overflow-wrap:anywhere}
-.line{padding:2px 0;color:var(--muted)}
-.line.chat{color:var(--text)}
-.line.win{color:var(--ok);font-weight:700}
-.line.err{color:var(--bad)}
+#log{flex:1;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:6px;background:#0b0d11;border-radius:10px;padding:8px 10px;font-size:.85rem;word-wrap:break-word;overflow-wrap:anywhere}
+.line{flex:none;padding:2px 0;color:var(--muted)}
+.ts{font-size:.65rem;font-weight:400;font-style:normal;opacity:.7;white-space:nowrap}
+.pn{color:var(--pc,var(--text));font-weight:700}
+
+/* Messaggi dei giocatori: fumetti */
+.line.chat{display:flex;flex-wrap:wrap;align-items:baseline;max-width:88%;align-self:flex-start;padding:6px 10px 7px;color:var(--text);
+  background:var(--panel2);border:1px solid #000;border-left:4px solid var(--pc,var(--gold));border-radius:12px 12px 12px 4px;box-shadow:0 2px 0 #000}
+.line.chat .pn{order:1;font-size:.8rem}
+.line.chat .ts{order:2;margin-left:auto;padding-left:10px;color:var(--muted)}
+.line.chat .sep{font-size:0}
+.line.chat .msg{order:3;flex:0 0 100%;margin-top:2px;font-size:.92rem;line-height:1.35}
+.line.chat.me{align-self:flex-end;background:#2f2a14;border-left:1px solid #000;border-right:4px solid var(--pc,var(--gold));border-radius:12px 12px 4px 12px}
+.line.chat .msg .ans-yes,.line.chat .msg .ans-no,.line.chat .msg .ans-jolly{font-size:.95rem;padding:1px 12px}
+/* Eventi di sistema */
+.line.sys{align-self:center;max-width:94%;margin:4px 0;padding:2px 10px;text-align:center;font-style:italic;font-size:.78rem;color:#8b92a6}
+/* Vittorie e azioni chiave */
+.line.win{align-self:stretch;margin:6px 0;padding:8px 12px;text-align:center;font-weight:700;color:var(--ink);
+  background:linear-gradient(135deg,#ffd700,#7be495);border:2px solid #000;border-radius:12px;box-shadow:0 3px 0 #000}
+.line.win::before{content:'\1F3C6\00a0'}
+.line.win .ts{color:rgba(26,21,0,.65)}
+.line.win .pn{color:inherit;text-decoration:underline;text-decoration-color:var(--pc);text-decoration-thickness:3px;text-underline-offset:3px}
+/* Errori e tentativi sbagliati */
+.line.err{align-self:stretch;margin:4px 0;padding:5px 10px;text-align:center;color:#ff8da1;background:rgba(255,77,109,.1);border:1px solid rgba(255,77,109,.45);border-radius:10px}
 .ans-yes,.ans-no,.ans-jolly{display:inline-block;font-weight:700;border:1px solid currentColor;border-radius:6px;padding:0 6px}
 .ans-yes{color:var(--ok)}
 .ans-no{color:var(--bad)}
@@ -580,6 +601,10 @@ body.is-spectator #spectatorInfo{display:block!important}
         <strong>Davide</strong>
         <small>Supporto nella ricerca degli sprite Pokémon tramite <a href="https://github.com/PokeAPI/sprites" target="_blank" rel="noopener noreferrer">PokeAPI Sprites</a>.</small>
       </li>
+      <!-- <li>
+        <strong>Immagini</strong>
+        <small>Foto con licenza libera da <a href="https://commons.wikimedia.org" target="_blank" rel="noopener noreferrer">Wikimedia Commons</a> e <a href="https://openverse.org" target="_blank" rel="noopener noreferrer">Openverse</a>. <a href="img/crediti.txt" target="_blank" rel="noopener noreferrer">Autori e licenze</a>.</small>
+      </li> -->
     </ul>
   </div>
 </div>
@@ -1170,16 +1195,65 @@ var RELAY = {chat:1, quick:1, ready:1, unready:1, guess:1, result:1, pass:1};
 function $(id){ return document.getElementById(id); }
 
 /* ---------- Utilità UI ---------- */
-function log(text, cls, tail){
+var PCOLORS = ['#5cc8ff', '#ff7eb6', '#b69cff'];
+function colorOf(n){ return PCOLORS[((Number(n) || 1) - 1) % PCOLORS.length]; }
+function seatByName(nm){
+  var k = Object.keys(roster);
+  for(var i = 0; i < k.length; i++){ if(roster[k[i]].name === nm){ return Number(k[i]); } }
+  return (nm === myName && myN) ? myN : 0;
+}
+function nameSpan(n, label){
+  var s = document.createElement('span');
+  s.className = 'pn';
+  s.textContent = label;
+  if(n){ s.style.setProperty('--pc', colorOf(n)); }
+  return s;
+}
+function appendRich(parent, text){
+  var names = Object.keys(roster).map(function(k){ return roster[k].name; });
+  if(myName){ names.push(myName); }
+  names = names.filter(function(x, i){ return x && names.indexOf(x) === i; })
+    .sort(function(a, b){ return b.length - a.length; })
+    .map(function(x){ return x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&'); });
+  if(!names.length){ parent.appendChild(document.createTextNode(text)); return; }
+  var re = new RegExp('(^|[^\\p{L}\\p{N}])(' + names.join('|') + ')(?![\\p{L}\\p{N}])', 'gu');
+  var last = 0, m;
+  while((m = re.exec(text))){
+    var start = m.index + m[1].length;
+    if(start > last){ parent.appendChild(document.createTextNode(text.slice(last, start))); }
+    parent.appendChild(nameSpan(seatByName(m[2]), m[2]));
+    last = start + m[2].length;
+  }
+  if(last < text.length){ parent.appendChild(document.createTextNode(text.slice(last))); }
+}
+function log(text, cls, tail, who){
   var d = document.createElement('div');
   d.className = 'line ' + (cls || '');
-  var t = new Date().toLocaleTimeString('it-IT', {hour:'2-digit', minute:'2-digit'});
-  d.textContent = '[' + t + '] ' + text;
+  var ts = document.createElement('span');
+  ts.className = 'ts';
+  ts.textContent = '[' + new Date().toLocaleTimeString('it-IT', {hour:'2-digit', minute:'2-digit'}) + '] ';
+  d.appendChild(ts);
+  var body = d;
+  if(cls === 'chat' && who){
+    if(who === myN){ d.classList.add('me'); }
+    d.style.setProperty('--pc', colorOf(who));
+    d.appendChild(nameSpan(who, pname(who)));
+    var sep = document.createElement('span');
+    sep.className = 'sep';
+    sep.textContent = ': ';
+    d.appendChild(sep);
+    body = document.createElement('span');
+    body.className = 'msg';
+    body.textContent = text;
+    d.appendChild(body);
+  } else {
+    appendRich(d, text);
+  }
   if(tail){
     var sp = document.createElement('span');
     sp.className = tail.cls;
     sp.textContent = tail.text;
-    d.appendChild(sp);
+    body.appendChild(sp);
   }
   $('log').appendChild(d);
   $('log').scrollTop = $('log').scrollHeight;
@@ -1993,14 +2067,13 @@ function handle(d){
       log(d.text, 'sys');
       break;
     case 'chat':
-      log(pname(d.from) + ': ' + d.text, 'chat');
+      log(d.text, 'chat', null, d.from);
       sfx.msg();
       break;
     case 'quick':
-      if(d.kind === 'jolly' && !roomConfig.jollyEnabled){ break; }
       var q = QUICK[d.kind];
       if(!q){ break; }
-      log(pname(d.from) + ': ', 'chat', {text:q.label, cls:q.cls});
+      log('', 'chat', {text:q.label, cls:q.cls}, d.from);
       sfx.quick(d.kind);
       break;
     case 'ready':
